@@ -4,30 +4,28 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.android.booklisting.MainActivity">
+    tools:context="com.example.android.booklisting.BookActivity">
 
     <!--list view-->
     <ListView
+        android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/list"
         android:divider="@null"
-        android:dividerHeight="0dp"
-        ></ListView>
+        android:dividerHeight="0dp"></ListView>
 
     <!--empty view-->
     <TextView
+        android:id="@+id/empty_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:id="@+id/empty_view"
-        android:textAppearance="?android:textAppearanceMedium"
-        />
+        android:textAppearance="?android:textAppearanceMedium" />
     <!--loading indicator-->
     <ProgressBar
+        android:id="@+id/loading_indicator"
+        style="@style/Widget.AppCompat.ProgressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:id="@+id/loading_indicator"
-        style="@style/Widget.AppCompat.ProgressBar"/>
+        android:layout_centerInParent="true" />
 </RelativeLayout>
