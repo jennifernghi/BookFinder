@@ -3,7 +3,9 @@ package com.example.android.booklisting;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.net.URL;
@@ -15,7 +17,7 @@ public class BookActivity extends AppCompatActivity {
     static final String URL="https://www.googleapis.com/books/v1/volumes?q=tech&maxResults=20";
     private ArrayList<Book> books =null;
     private TextView mEmptyTextView;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +50,8 @@ public class BookActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(ArrayList<Book> books) {
+            ProgressBar progressBar = (ProgressBar) findViewById(R.id.loading_indicator);
+            progressBar.setVisibility(View.GONE);
             mEmptyTextView.setText("No book found!");
            mAdapter.clear();
 
