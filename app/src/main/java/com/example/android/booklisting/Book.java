@@ -9,10 +9,10 @@ import android.graphics.Bitmap;
 public class Book {
     private String mTitle;
     private String[] mAuthors;
-    private String[] mIsbn;
+    private ISBN[] mIsbn;
     private Bitmap mImage;
 
-    public Book(String title, String[] authors, String[] isbn, Bitmap image) {
+    public Book(String title, String[] authors, ISBN[] isbn, Bitmap image) {
         this.mTitle = title;
         this.mAuthors = authors;
         this.mIsbn = isbn;
@@ -27,7 +27,7 @@ public class Book {
         return this.mAuthors;
     }
 
-    public String[] getIsbn() {
+    public ISBN[] getIsbn() {
         return this.mIsbn;
     }
 
@@ -44,11 +44,5 @@ public class Book {
         return str;
     }
 
-    public String printIsbn() {
-        String str = "";
-        for (String isbn : mIsbn) {
-            str += isbn + " ";
-        }
-        return str;
-    }
+   
 }
