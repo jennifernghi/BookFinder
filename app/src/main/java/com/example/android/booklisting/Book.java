@@ -21,11 +21,6 @@ public class Book {
         this.mImage = image;
     }
 
-    public Book(String title, ArrayList<Author> authors, ArrayList<ISBN> isbn) {
-        this.mTitle = title;
-        this.mAuthors = authors;
-        this.mIsbn = isbn;
-    }
 
     public String getTitle() {
         return this.mTitle;

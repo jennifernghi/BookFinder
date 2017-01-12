@@ -70,11 +70,9 @@ public final class Utils {
             connection.setConnectTimeout(8000);
             connection.setRequestMethod("GET");
             connection.connect();
-            Log.i(LOG_TAG, "success connect" + connection.getResponseCode());
             if (connection.getResponseCode() == 200) {
                 inputStream = connection.getInputStream();
                 reponse = getResponseFromStream(inputStream); //step 3
-                Log.i(LOG_TAG, "success connect" + connection.getResponseCode());
             } else {
                 Log.e(LOG_TAG, "Error: response code: " + connection.getResponseCode());
             }
@@ -119,13 +117,10 @@ public final class Utils {
      * @return
      */
     public static ArrayList<Book> extractBook(String response) {
-        Log.i(LOG_TAG, "in extract book");
         ArrayList<Book> books = new ArrayList<>();
         ArrayList<ISBN> isbns;
         ArrayList<Author> authors;
         Bitmap image;
-
-        Log.i(LOG_TAG,"response: "+ response);
         try {
             JSONObject root = new JSONObject(response);
             JSONArray items = root.getJSONArray("items");
@@ -141,7 +136,6 @@ public final class Utils {
                 JSONArray authorArray = volumeInfo.getJSONArray("authors");
                 for (int k = 0; k < authorArray.length(); k++) {
                     authors.add(new Author(authorArray.getString(k)));
-                    Log.i(LOG_TAG, authorArray.getString(k));
                 }
 
                 //get array list of isbns: type and code
@@ -157,17 +151,15 @@ public final class Utils {
                 //get book bitmap image from url link
                 JSONObject imageLinks = volumeInfo.getJSONObject("imageLinks");
                 String imageUrl = imageLinks.getString("thumbnail").trim();
-                Log.i(LOG_TAG, imageUrl);
+
 
 
                 //convert imageUrl to Bitmap img
                InputStream in = new URL(imageUrl).openStream();
                image = BitmapFactory.decodeStream(in);
 
-
                 //add book to arrayList
                 books.add(new Book(title, authors, isbns, image));
-                //books.add(new Book(title, authors, isbns));
             }
         } catch (JSONException e) {
             Log.e(LOG_TAG, "Parsing error");
@@ -187,12 +179,14 @@ public final class Utils {
 
         String response = null;
         try {
+            //step 2 and 3
             response = downloadJsonResponse(url);
         } catch (IOException e) {
             Log.e(LOG_TAG, "IOEXception: downloadJsonResponse(url) ");
         }
 
 
+        //step 4
         ArrayList<Book>  books = extractBook(response);
 
 

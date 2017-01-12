@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -11,19 +12,22 @@ import java.util.ArrayList;
 public class BookActivity extends AppCompatActivity {
     final static String LOG_TAG = BookActivity.class.getSimpleName();
     private BookAdapter mAdapter = null;
-    static final String URL="https://www.googleapis.com/books/v1/volumes?q=tech&maxResults=6";
+    static final String URL="https://www.googleapis.com/books/v1/volumes?q=tech&maxResults=20";
     private ArrayList<Book> books =null;
+    private TextView mEmptyTextView;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.book_list_view);
 
-        //ArrayList<Book> books = Utils.extractBook();
-
-        new BookDownloader().execute(URL);
+         mEmptyTextView = (TextView) findViewById(R.id.empty_view);
         ListView listView = (ListView) findViewById(R.id.list);
+        listView.setEmptyView(mEmptyTextView);
         mAdapter = new BookAdapter(this,new ArrayList<Book>());
         listView.setAdapter(mAdapter);
+
+        new BookDownloader().execute(URL);
 
     }
 
@@ -44,6 +48,7 @@ public class BookActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(ArrayList<Book> books) {
+            mEmptyTextView.setText("No book found!");
            mAdapter.clear();
 
             if(books!=null && !books.isEmpty()){
