@@ -244,8 +244,8 @@ public final class Utils {
 
     public static ArrayList<Book> extractBook() {
          ArrayList<Book> books = new ArrayList<>();
-         ArrayList<ISBN> isbns = new ArrayList<>();
-         ArrayList<Author> authors = null;
+         ArrayList<ISBN> isbns;
+         ArrayList<Author> authors;
 
 
         try {
@@ -268,16 +268,17 @@ public final class Utils {
                 }
 
                 //get array list of isbns: type and code
-                /*JSONArray industryIdentifiers = volumeInfo.getJSONArray("industryIdentifiers");
+                isbns = new ArrayList<>();
+                JSONArray industryIdentifiers = volumeInfo.getJSONArray("industryIdentifiers");
                 for (int j = 0; j < industryIdentifiers.length(); j++) {
-                    JSONObject industryIdentifiersObject = (JSONObject) industryIdentifiers.get(i);
+                    JSONObject industryIdentifiersObject = (JSONObject) industryIdentifiers.get(j);
                     String isbnType = industryIdentifiersObject.getString("type");
                     String isbn = industryIdentifiersObject.getString("identifier");
                     isbns.add(new ISBN(isbnType, isbn));
                 }
 
                 //get book bitmap image from url link
-                JSONObject imageLinks = volumeInfo.getJSONObject("imageLinks");
+                /*JSONObject imageLinks = volumeInfo.getJSONObject("imageLinks");
                 String imageUrl = imageLinks.getString("thumbnail").trim();
 
                 //convert to Bitmap image
@@ -287,7 +288,7 @@ public final class Utils {
 
                 //add book to arrayList
                 //books.add(new Book(title, authors, isbns, bookImage));
-                books.add(new Book(title, authors));
+                books.add(new Book(title, authors, isbns));
             }
         } catch (JSONException e) {
             e.printStackTrace();

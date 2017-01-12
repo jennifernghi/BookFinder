@@ -24,9 +24,10 @@ public class Book {
         this.mImage = image;
     }
 
-    public Book(String title, ArrayList<Author> authors) {
+    public Book(String title, ArrayList<Author> authors, ArrayList<ISBN> isbn) {
         this.mTitle = title;
         this.mAuthors = authors;
+        this.mIsbn = isbn;
     }
 
     public String getTitle() {
@@ -58,10 +59,14 @@ public class Book {
         return str;
     }
 
-    public String printIsbn() {
+    public String printISBN() {
         String str = "";
-        for (ISBN isbn : mIsbn) {
-            str += isbn.getType() + ": " + isbn.getIsbn() + " ";
+        for(int i =0; i< mIsbn.size(); i++) {
+            if(i!=mIsbn.size()-1) {
+                str += mIsbn.get(i).getType() + ": " + mIsbn.get(i).getIsbn() + ", ";
+            }else{
+                str += mIsbn.get(i).getType() + ": " + mIsbn.get(i).getIsbn() + ". ";
+            }
         }
         return str;
     }
