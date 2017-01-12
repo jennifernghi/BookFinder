@@ -20,6 +20,5 @@ public class BookActivity extends AppCompatActivity {
         mAdapter = new BookAdapter(this,books);
         listView.setAdapter(mAdapter);
 
-
     }
 }

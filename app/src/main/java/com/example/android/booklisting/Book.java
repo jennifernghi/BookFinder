@@ -1,5 +1,7 @@
 package com.example.android.booklisting;
 
+import android.graphics.Bitmap;
+
 import java.util.ArrayList;
 
 /**
@@ -10,13 +12,13 @@ public class Book {
     private String mTitle;
     private ArrayList<Author> mAuthors;
     private ArrayList<ISBN> mIsbn;
-    private String mImageURL;
+    private Bitmap mImage;
 
-    public Book(String title, ArrayList<Author> authors, ArrayList<ISBN> isbn, String imageURL) {
+    public Book(String title, ArrayList<Author> authors, ArrayList<ISBN> isbn, Bitmap image) {
         this.mTitle = title;
         this.mAuthors = authors;
         this.mIsbn = isbn;
-        this.mImageURL = imageURL;
+        this.mImage = image;
     }
 
     public Book(String title, ArrayList<Author> authors, ArrayList<ISBN> isbn) {
@@ -38,8 +40,8 @@ public class Book {
     }
 
 
-    public String getmImageURL() {
-        return this.mImageURL;
+    public Bitmap getmImage() {
+        return this.mImage;
     }
 
     public String printAuthors() {

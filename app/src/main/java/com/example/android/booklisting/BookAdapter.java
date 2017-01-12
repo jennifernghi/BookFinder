@@ -32,7 +32,7 @@ public class BookAdapter extends ArrayAdapter<Book> {
 
         //Show book image
         ImageView imageView = (ImageView) convertView.findViewById(R.id.book_image);
-        //imageView.setImageBitmap(currentBook.getmImage());
+        imageView.setImageBitmap(currentBook.getmImage());
 
         //show book title
         TextView titleTextView = (TextView) convertView.findViewById(R.id.book_title);
