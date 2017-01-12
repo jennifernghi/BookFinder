@@ -10,8 +10,9 @@
         android:layout_width="90dp"
         android:layout_height="140dp"
         android:layout_gravity="center_vertical"
-        android:layout_marginLeft="8dp"
-        android:background="@color/colorPrimary"/>
+        android:background="@color/colorPrimary"
+        tools:ignore="RtlHardcoded"
+        android:layout_marginLeft="8dp" />
 
     <LinearLayout
         android:id="@+id/text_container"
