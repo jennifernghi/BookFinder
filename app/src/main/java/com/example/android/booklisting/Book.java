@@ -2,6 +2,8 @@ package com.example.android.booklisting;
 
 import android.graphics.Bitmap;
 
+import java.util.ArrayList;
+
 /**
  * Created by jennifernghinguyen on 1/11/17.
  */
@@ -9,10 +11,10 @@ import android.graphics.Bitmap;
 public class Book {
     private String mTitle;
     private String[] mAuthors;
-    private ISBN[] mIsbn;
+    private ArrayList<ISBN> mIsbn;
     private Bitmap mImage;
 
-    public Book(String title, String[] authors, ISBN[] isbn, Bitmap image) {
+    public Book(String title, String[] authors, ArrayList<ISBN> isbn, Bitmap image) {
         this.mTitle = title;
         this.mAuthors = authors;
         this.mIsbn = isbn;
@@ -27,7 +29,7 @@ public class Book {
         return this.mAuthors;
     }
 
-    public ISBN[] getIsbn() {
+    public ArrayList<ISBN> getIsbn() {
         return this.mIsbn;
     }
 
@@ -44,5 +46,5 @@ public class Book {
         return str;
     }
 
-   
+
 }

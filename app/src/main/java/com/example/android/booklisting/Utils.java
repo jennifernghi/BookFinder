@@ -1,5 +1,8 @@
 package com.example.android.booklisting;
 
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -224,18 +227,18 @@ public final class Utils {
             " ]\n" +
             "}";
 
-    private Utils(){}
+    private Utils() {
+    }
 
 
-    public ArrayList<Book> extractBook(){
+    public ArrayList<Book> extractBook() {
         ArrayList<Book> books = null;
-        String[] isbns = null;
+        ArrayList<ISBN> isbns = null;
 
         try {
             JSONObject root = new JSONObject(JSON_RESPONSE);
             JSONArray items = root.getJSONArray("items");
-            for(int i=0; i<items.length();i++)
-            {
+            for (int i = 0; i < items.length(); i++) {
                 JSONObject item = (JSONObject) items.get(i);
                 JSONObject volumeInfo = item.getJSONObject("volumeInfo");
 
@@ -245,13 +248,21 @@ public final class Utils {
                 //get array of authors
                 JSONArray authors = volumeInfo.getJSONArray("authors");
 
-                //get array of isbn code
+                //get array list of isbns: type and code
                 JSONArray industryIdentifiers = volumeInfo.getJSONArray("industryIdentifiers");
-                isbns = new String[industryIdentifiers.length()];
-                for(int j=0; j<industryIdentifiers.length();j++)
-                {
-                  // JSONObject
+                isbns = new ArrayList<>();
+                for (int j = 0; j < industryIdentifiers.length(); j++) {
+                    JSONObject industryIdentifiersObject = (JSONObject) industryIdentifiers.get(i);
+                    String isbnType = industryIdentifiersObject.getString("type");
+                    String isbn = industryIdentifiersObject.getString("identifier");
+                    isbns.add(new ISBN(isbnType,isbn));
                 }
+
+                //get book bitmap image from url link
+                JSONObject imageLinks = (JSONObject) volumeInfo.getJSONObject("imageLinks");
+                String imageUrl = imageLinks.getString("thumbnail");
+
+                //convert to Bitmap image
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -259,4 +270,18 @@ public final class Utils {
 
         return books;
     }
+
+    private class BitmapImageDownloader extends AsyncTask<String, Void, Bitmap>{
+
+        @Override
+        protected Bitmap doInBackground(String... urls) {
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            super.onPostExecute(bitmap);
+        }
+    }
+
 }
