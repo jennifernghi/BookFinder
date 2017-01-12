@@ -1,5 +1,7 @@
 package com.example.android.booklisting;
 
+import android.graphics.Bitmap;
+
 /**
  * Created by jennifernghinguyen on 1/11/17.
  */
@@ -8,13 +10,13 @@ public class Book {
     private String mTitle;
     private String[] mAuthors;
     private String[] mIsbn;
-    private String mImageLink;
+    private Bitmap mImage;
 
-    public Book(String title, String[] authors, String[] isbn, String imageLink) {
+    public Book(String title, String[] authors, String[] isbn, Bitmap image) {
         this.mTitle = title;
         this.mAuthors = authors;
         this.mIsbn = isbn;
-        this.mImageLink = imageLink;
+        this.mImage = image;
     }
 
     public String getTitle() {
@@ -29,7 +31,24 @@ public class Book {
         return this.mIsbn;
     }
 
-    public String getImageLink() {
-        return this.mImageLink;
+
+    public Bitmap getmImage() {
+        return this.mImage;
+    }
+
+    public String printAuthors() {
+        String str = "";
+        for (String author : mAuthors) {
+            str += author + " ";
+        }
+        return str;
+    }
+
+    public String printIsbn() {
+        String str = "";
+        for (String isbn : mIsbn) {
+            str += isbn + " ";
+        }
+        return str;
     }
 }
