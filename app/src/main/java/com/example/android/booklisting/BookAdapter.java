@@ -22,12 +22,12 @@ import static android.R.attr.resource;
  */
 
 public class BookAdapter extends ArrayAdapter<Book> {
-
+    final static String LOG_TAG = BookAdapter.class.getSimpleName();
     private Book currentBook;
     public BookAdapter(Context context, List<Book> objects) {
         super(context, 0, objects);
     }
-    
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if(convertView==null){
@@ -35,6 +35,7 @@ public class BookAdapter extends ArrayAdapter<Book> {
         }
 
         currentBook = getItem(position);
+
         //Show book image
         ImageView imageView = (ImageView) convertView.findViewById(R.id.book_image);
         imageView.setImageBitmap(currentBook.getmImage());

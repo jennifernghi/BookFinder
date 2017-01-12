@@ -5,4 +5,5 @@ package com.example.android.booklisting;
  */
 
 public final class Utils {
+    final static String LOG_TAG = Utils.class.getSimpleName();
 }
