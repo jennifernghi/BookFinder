@@ -1,21 +1,20 @@
 package com.example.android.booklisting;
 
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.net.URL;
 import java.util.ArrayList;
 
 public class BookActivity extends AppCompatActivity {
     final static String LOG_TAG = BookActivity.class.getSimpleName();
+    static final String URL = "https://www.googleapis.com/books/v1/volumes?q=love&maxResults=20";
     private BookAdapter mAdapter = null;
-    static final String URL="https://www.googleapis.com/books/v1/volumes?q=tech&maxResults=20";
-    private ArrayList<Book> books =null;
+    private ArrayList<Book> books = null;
     private TextView mEmptyTextView;
 
     @Override
@@ -23,22 +22,22 @@ public class BookActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.book_list_view);
 
-         mEmptyTextView = (TextView) findViewById(R.id.empty_view);
+        mEmptyTextView = (TextView) findViewById(R.id.empty_view);
         ListView listView = (ListView) findViewById(R.id.list);
         listView.setEmptyView(mEmptyTextView);
-        mAdapter = new BookAdapter(this,new ArrayList<Book>());
+        mAdapter = new BookAdapter(this, new ArrayList<Book>());
         listView.setAdapter(mAdapter);
 
         new BookDownloader().execute(URL);
 
     }
 
-    private class BookDownloader extends AsyncTask<String, Void, ArrayList<Book>>{
+    private class BookDownloader extends AsyncTask<String, Void, ArrayList<Book>> {
 
         @Override
         protected ArrayList<Book> doInBackground(String... urls) {
 
-            if(urls.length<1|| urls[0]==null){
+            if (urls.length < 1 || urls[0] == null) {
                 return null;
             }
 
@@ -52,10 +51,12 @@ public class BookActivity extends AppCompatActivity {
         protected void onPostExecute(ArrayList<Book> books) {
             ProgressBar progressBar = (ProgressBar) findViewById(R.id.loading_indicator);
             progressBar.setVisibility(View.GONE);
-            mEmptyTextView.setText("No book found!");
-           mAdapter.clear();
 
-            if(books!=null && !books.isEmpty()){
+            mEmptyTextView.setText("No book found!");
+
+            mAdapter.clear();
+
+            if (books != null && !books.isEmpty()) {
                 mAdapter.addAll(books);
             }
         }

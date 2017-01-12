@@ -40,7 +40,7 @@ public class BookAdapter extends ArrayAdapter<Book> {
 
         //show book author(s)
         TextView authorTextView = (TextView) convertView.findViewById(R.id.book_author);
-        authorTextView.setText("Authors: "+currentBook.printAuthors());
+        authorTextView.setText("Authors: " + currentBook.printAuthors());
 
         //show book isbn(s)
         TextView isbnTextView = (TextView) convertView.findViewById(R.id.book_isbn);

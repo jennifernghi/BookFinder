@@ -18,8 +18,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
-import static java.lang.System.in;
-
 /**
  * Created by jennifernghinguyen on 1/11/17.
  */
@@ -91,6 +89,7 @@ public final class Utils {
 
     /**
      * step 3 - get jsonResponse if httpurlconnection success
+     *
      * @param inputStream
      * @return
      * @throws IOException
@@ -113,6 +112,7 @@ public final class Utils {
 
     /**
      * step 4 - extract book data from json response
+     *
      * @param response
      * @return
      */
@@ -153,10 +153,9 @@ public final class Utils {
                 String imageUrl = imageLinks.getString("thumbnail").trim();
 
 
-
                 //convert imageUrl to Bitmap img
-               InputStream in = new URL(imageUrl).openStream();
-               image = BitmapFactory.decodeStream(in);
+                InputStream in = new URL(imageUrl).openStream();
+                image = BitmapFactory.decodeStream(in);
 
                 //add book to arrayList
                 books.add(new Book(title, authors, isbns, image));
@@ -172,7 +171,7 @@ public final class Utils {
     }
 
 
-    public static ArrayList<Book> fetchBookData(String urlString){
+    public static ArrayList<Book> fetchBookData(String urlString) {
         //step 1
         URL url = createURL(urlString);
 
@@ -187,7 +186,7 @@ public final class Utils {
 
 
         //step 4
-        ArrayList<Book>  books = extractBook(response);
+        ArrayList<Book> books = extractBook(response);
 
 
         return books;
