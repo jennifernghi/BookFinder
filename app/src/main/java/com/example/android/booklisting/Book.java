@@ -1,11 +1,6 @@
 package com.example.android.booklisting;
 
-import android.graphics.Bitmap;
-
 import java.util.ArrayList;
-
-import static android.R.attr.author;
-import static com.example.android.booklisting.Utils.image;
 
 /**
  * Created by jennifernghinguyen on 1/11/17.
@@ -15,13 +10,13 @@ public class Book {
     private String mTitle;
     private ArrayList<Author> mAuthors;
     private ArrayList<ISBN> mIsbn;
-    private Bitmap mImage;
+    private String mImageURL;
 
-    public Book(String title, ArrayList<Author> authors, ArrayList<ISBN> isbn, Bitmap image) {
+    public Book(String title, ArrayList<Author> authors, ArrayList<ISBN> isbn, String imageURL) {
         this.mTitle = title;
         this.mAuthors = authors;
         this.mIsbn = isbn;
-        this.mImage = image;
+        this.mImageURL = imageURL;
     }
 
     public Book(String title, ArrayList<Author> authors, ArrayList<ISBN> isbn) {
@@ -43,16 +38,16 @@ public class Book {
     }
 
 
-    public Bitmap getmImage() {
-        return this.mImage;
+    public String getmImageURL() {
+        return this.mImageURL;
     }
 
     public String printAuthors() {
         String str = "";
-        for (int i=0; i<mAuthors.size(); i++) {
-            if(i!= mAuthors.size()-1) {
+        for (int i = 0; i < mAuthors.size(); i++) {
+            if (i != mAuthors.size() - 1) {
                 str += mAuthors.get(i).getName() + ", ";
-            }else {
+            } else {
                 str += mAuthors.get(i).getName() + ". ";
             }
         }
@@ -61,10 +56,10 @@ public class Book {
 
     public String printISBN() {
         String str = "";
-        for(int i =0; i< mIsbn.size(); i++) {
-            if(i!=mIsbn.size()-1) {
+        for (int i = 0; i < mIsbn.size(); i++) {
+            if (i != mIsbn.size() - 1) {
                 str += mIsbn.get(i).getType() + ": " + mIsbn.get(i).getIsbn() + ", ";
-            }else{
+            } else {
                 str += mIsbn.get(i).getType() + ": " + mIsbn.get(i).getIsbn() + ". ";
             }
         }

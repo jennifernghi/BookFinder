@@ -20,10 +20,6 @@ import java.util.ArrayList;
 
 public final class Utils {
     final static String LOG_TAG = Utils.class.getSimpleName();
-     static Bitmap image = null;
-
-
-
 
 
     final static String JSON_RESPONSE = "{\n" +
@@ -278,17 +274,13 @@ public final class Utils {
                 }
 
                 //get book bitmap image from url link
-                /*JSONObject imageLinks = volumeInfo.getJSONObject("imageLinks");
+                JSONObject imageLinks = volumeInfo.getJSONObject("imageLinks");
                 String imageUrl = imageLinks.getString("thumbnail").trim();
-
-                //convert to Bitmap image
-               //Bitmap image = new BitmapImageDownloader().execute(imageUrl);
-
-                Bitmap bookImage = BitmapImageDownload(imageUrl);*/
+                Log.i(LOG_TAG,imageUrl);
 
                 //add book to arrayList
-                //books.add(new Book(title, authors, isbns, bookImage));
-                books.add(new Book(title, authors, isbns));
+                books.add(new Book(title, authors, isbns, imageUrl));
+                //books.add(new Book(title, authors, isbns));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -297,13 +289,8 @@ public final class Utils {
         return books;
     }
 
-    public static Bitmap BitmapImageDownload(String url) {
 
-        new BitmapImageDownloader().execute(url);
-
-        return image;
-    }
-    private static class BitmapImageDownloader extends AsyncTask<String, Void, Bitmap> {
+    /*private static class BitmapImageDownloader extends AsyncTask<String, Void, Bitmap> {
 
 
         @Override
@@ -312,6 +299,7 @@ public final class Utils {
             try {
                 InputStream in = new URL(urls[0]).openStream();
                 image = BitmapFactory.decodeStream(in);
+                Log.i(LOG_TAG,"in doInBackground");
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error decoding bitmap");
             }
@@ -324,6 +312,6 @@ public final class Utils {
            image = bitmap;
         }
 
-    }
+    }*/
 
 }
