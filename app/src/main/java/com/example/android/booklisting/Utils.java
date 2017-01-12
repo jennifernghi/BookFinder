@@ -18,6 +18,8 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
+import static java.lang.System.in;
+
 /**
  * Created by jennifernghinguyen on 1/11/17.
  */
@@ -37,7 +39,7 @@ public final class Utils {
      */
     public static URL createURL(String urlString) {
         URL url = null;
-        if (urlString == null) {
+        if (url == null) {
             try {
                 url = new URL(urlString);
             } catch (MalformedURLException e) {
@@ -68,10 +70,11 @@ public final class Utils {
             connection.setConnectTimeout(8000);
             connection.setRequestMethod("GET");
             connection.connect();
-
+            Log.i(LOG_TAG, "success connect" + connection.getResponseCode());
             if (connection.getResponseCode() == 200) {
                 inputStream = connection.getInputStream();
                 reponse = getResponseFromStream(inputStream); //step 3
+                Log.i(LOG_TAG, "success connect" + connection.getResponseCode());
             } else {
                 Log.e(LOG_TAG, "Error: response code: " + connection.getResponseCode());
             }
@@ -116,12 +119,13 @@ public final class Utils {
      * @return
      */
     public static ArrayList<Book> extractBook(String response) {
-        ArrayList<Book> books = null;
+        Log.i(LOG_TAG, "in extract book");
+        ArrayList<Book> books = new ArrayList<>();
         ArrayList<ISBN> isbns;
         ArrayList<Author> authors;
         Bitmap image;
 
-
+        Log.i(LOG_TAG,"response: "+ response);
         try {
             JSONObject root = new JSONObject(response);
             JSONArray items = root.getJSONArray("items");
@@ -157,8 +161,8 @@ public final class Utils {
 
 
                 //convert imageUrl to Bitmap img
-                InputStream in = new URL(imageUrl).openStream();
-                image = BitmapFactory.decodeStream(in);
+               InputStream in = new URL(imageUrl).openStream();
+               image = BitmapFactory.decodeStream(in);
 
 
                 //add book to arrayList
@@ -177,10 +181,9 @@ public final class Utils {
 
 
     public static ArrayList<Book> fetchBookData(String urlString){
-
-        ArrayList<Book> books = null;
         //step 1
         URL url = createURL(urlString);
+
 
         String response = null;
         try {
@@ -189,9 +192,9 @@ public final class Utils {
             Log.e(LOG_TAG, "IOEXception: downloadJsonResponse(url) ");
         }
 
-        if(response!=null){
-            books = extractBook(response);
-        }
+
+        ArrayList<Book>  books = extractBook(response);
+
 
         return books;
     }
