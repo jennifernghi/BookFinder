@@ -4,28 +4,36 @@ import android.graphics.Bitmap;
 
 import java.util.ArrayList;
 
+import static android.R.attr.author;
+import static com.example.android.booklisting.Utils.image;
+
 /**
  * Created by jennifernghinguyen on 1/11/17.
  */
 
 public class Book {
     private String mTitle;
-    private String[] mAuthors;
+    private ArrayList<Author> mAuthors;
     private ArrayList<ISBN> mIsbn;
     private Bitmap mImage;
 
-    public Book(String title, String[] authors, ArrayList<ISBN> isbn, Bitmap image) {
+    public Book(String title, ArrayList<Author> authors, ArrayList<ISBN> isbn, Bitmap image) {
         this.mTitle = title;
         this.mAuthors = authors;
         this.mIsbn = isbn;
         this.mImage = image;
     }
 
+    public Book(String title, ArrayList<Author> authors) {
+        this.mTitle = title;
+        this.mAuthors = authors;
+    }
+
     public String getTitle() {
         return this.mTitle;
     }
 
-    public String[] getAuthors() {
+    public ArrayList<Author> getAuthors() {
         return this.mAuthors;
     }
 
@@ -40,11 +48,21 @@ public class Book {
 
     public String printAuthors() {
         String str = "";
-        for (String author : mAuthors) {
-            str += author + " ";
+        for (int i=0; i<mAuthors.size(); i++) {
+            if(i!= mAuthors.size()-1) {
+                str += mAuthors.get(i).getName() + ", ";
+            }else {
+                str += mAuthors.get(i).getName() + ". ";
+            }
         }
         return str;
     }
 
-
+    public String printIsbn() {
+        String str = "";
+        for (ISBN isbn : mIsbn) {
+            str += isbn.getType() + ": " + isbn.getIsbn() + " ";
+        }
+        return str;
+    }
 }

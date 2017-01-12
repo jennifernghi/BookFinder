@@ -1,12 +1,17 @@
 package com.example.android.booklisting;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -15,7 +20,13 @@ import java.util.ArrayList;
 
 public final class Utils {
     final static String LOG_TAG = Utils.class.getSimpleName();
-    final String JSON_RESPONSE = "{\n" +
+     static Bitmap image = null;
+
+
+
+
+
+    final static String JSON_RESPONSE = "{\n" +
             " \"kind\": \"books#volumes\",\n" +
             " \"totalItems\": 8438,\n" +
             " \"items\": [\n" +
@@ -231,9 +242,11 @@ public final class Utils {
     }
 
 
-    public ArrayList<Book> extractBook() {
-        ArrayList<Book> books = null;
-        ArrayList<ISBN> isbns = null;
+    public static ArrayList<Book> extractBook() {
+         ArrayList<Book> books = new ArrayList<>();
+         ArrayList<ISBN> isbns = new ArrayList<>();
+         ArrayList<Author> authors = null;
+
 
         try {
             JSONObject root = new JSONObject(JSON_RESPONSE);
@@ -246,23 +259,35 @@ public final class Utils {
                 String title = volumeInfo.getString("title");
 
                 //get array of authors
-                JSONArray authors = volumeInfo.getJSONArray("authors");
+                authors = new ArrayList<>();
+                JSONArray authorArray = volumeInfo.getJSONArray("authors");
+                for(int k =0; k<authorArray.length(); k++)
+                {
+                    authors.add(new Author(authorArray.getString(k)));
+                    Log.i(LOG_TAG,authorArray.getString(k));
+                }
 
                 //get array list of isbns: type and code
-                JSONArray industryIdentifiers = volumeInfo.getJSONArray("industryIdentifiers");
-                isbns = new ArrayList<>();
+                /*JSONArray industryIdentifiers = volumeInfo.getJSONArray("industryIdentifiers");
                 for (int j = 0; j < industryIdentifiers.length(); j++) {
                     JSONObject industryIdentifiersObject = (JSONObject) industryIdentifiers.get(i);
                     String isbnType = industryIdentifiersObject.getString("type");
                     String isbn = industryIdentifiersObject.getString("identifier");
-                    isbns.add(new ISBN(isbnType,isbn));
+                    isbns.add(new ISBN(isbnType, isbn));
                 }
 
                 //get book bitmap image from url link
-                JSONObject imageLinks = (JSONObject) volumeInfo.getJSONObject("imageLinks");
-                String imageUrl = imageLinks.getString("thumbnail");
+                JSONObject imageLinks = volumeInfo.getJSONObject("imageLinks");
+                String imageUrl = imageLinks.getString("thumbnail").trim();
 
                 //convert to Bitmap image
+               //Bitmap image = new BitmapImageDownloader().execute(imageUrl);
+
+                Bitmap bookImage = BitmapImageDownload(imageUrl);*/
+
+                //add book to arrayList
+                //books.add(new Book(title, authors, isbns, bookImage));
+                books.add(new Book(title, authors));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -271,17 +296,33 @@ public final class Utils {
         return books;
     }
 
-    private class BitmapImageDownloader extends AsyncTask<String, Void, Bitmap>{
+    public static Bitmap BitmapImageDownload(String url) {
+
+        new BitmapImageDownloader().execute(url);
+
+        return image;
+    }
+    private static class BitmapImageDownloader extends AsyncTask<String, Void, Bitmap> {
+
 
         @Override
         protected Bitmap doInBackground(String... urls) {
-            return null;
+            Bitmap image = null;
+            try {
+                InputStream in = new URL(urls[0]).openStream();
+                image = BitmapFactory.decodeStream(in);
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "Error decoding bitmap");
+            }
+
+            return image;
         }
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-            super.onPostExecute(bitmap);
+           image = bitmap;
         }
+
     }
 
 }
