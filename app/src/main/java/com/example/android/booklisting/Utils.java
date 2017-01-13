@@ -132,14 +132,23 @@ public final class Utils {
                 // get book title
                 String title = volumeInfo.getString("title");
                 Log.i(LOG_TAG, i + "title" + title);
+
                 //get array of authors
                 authors = new ArrayList<>();
-                JSONArray authorArray = volumeInfo.getJSONArray("authors");
-                for (int k = 0; k < authorArray.length(); k++) {
-                    authors.add(new Author(authorArray.getString(k)));
-                    Log.i(LOG_TAG, i + "author: " + k + ": " + authorArray.getString(k));
+                JSONArray authorArray = null;
+                try {
+                     authorArray = volumeInfo.getJSONArray("authors");
+                }catch (Exception e){
+                    Log.e(LOG_TAG, i+ " this book has no info about authors");
                 }
-
+                if(authorArray!=null) {
+                    for (int k = 0; k < authorArray.length(); k++) {
+                        authors.add(new Author(authorArray.getString(k)));
+                        Log.i(LOG_TAG, i + "author: " + k + ": " + authorArray.getString(k));
+                    }
+                }else{
+                    authors.add(new Author("unknown"));
+                }
                 //get array list of isbns: type and code
                 isbns = new ArrayList<>();
                 JSONArray industryIdentifiers = null;
