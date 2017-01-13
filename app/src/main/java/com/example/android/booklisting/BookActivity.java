@@ -1,9 +1,12 @@
 package com.example.android.booklisting;
 
-import android.os.AsyncTask;
+import android.content.Loader;
 import android.os.Bundle;
+
+
+import android.app.LoaderManager;
+import android.app.LoaderManager.LoaderCallbacks;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,27 +15,25 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class BookActivity extends AppCompatActivity {
+public class BookActivity extends AppCompatActivity implements LoaderCallbacks<List<Book>> {
     final static String LOG_TAG = BookActivity.class.getSimpleName();
     //static final String URL = "https://www.googleapis.com/books/v1/volumes?q=let's+get+naked&maxResults=20";
     static final String URL = "https://www.googleapis.com/books/v1/volumes";
     private BookAdapter mAdapter = null;
-    private ArrayList<Book> books = null;
+    //private ArrayList<Book> books = null;
     private TextView mEmptyTextView;
-    private boolean loading = true;
+    //private boolean loading = true;
     private ProgressBar progressBar;
+
+    private String searchTerm = "android programming";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.book_list_view);
         progressBar = (ProgressBar) findViewById(R.id.loading_indicator);
-        if(loading){
-            progressBar.setVisibility(View.VISIBLE);
-        }else{
-            progressBar.setVisibility(View.GONE);
-        }
 
         mEmptyTextView = (TextView) findViewById(R.id.empty_view);
         ListView listView = (ListView) findViewById(R.id.list);
@@ -45,64 +46,54 @@ public class BookActivity extends AppCompatActivity {
         Button searchButton = (Button) findViewById(R.id.search_button);
         final EditText searchEditText = (EditText) findViewById(R.id.search_input);
 
+
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(searchEditText.getText()!=null || searchEditText.getText().toString().equals("")) {
-                    searchBook(searchEditText.getText().toString().trim());
+                    mAdapter.clear();
+                    searchTerm = searchEditText.getText().toString().trim();
+                    searchBook();
                 }
             }
         });
 
-        new BookDownloader("android platforms").execute(URL);
+
+        LoaderManager loaderManager = getLoaderManager();
+
+        loaderManager.initLoader(1,null,this);
 
     }
 
-    private void searchBook(String searchterms) {
-        new BookDownloader(searchterms).execute(URL);
+    private void searchBook() {
+        getLoaderManager().restartLoader(1, null, this);
     }
 
-    private class BookDownloader extends AsyncTask<String, Integer, ArrayList<Book>> {
 
-        private String searchTerm;
+    @Override
+    public Loader<List<Book>> onCreateLoader(int id, Bundle args) {
+        progressBar.setVisibility(View.VISIBLE);
+        mEmptyTextView.setVisibility(View.GONE);
+        return new BookLoader(this, URL, searchTerm);
+    }
 
-        public BookDownloader(String searchTerm){
-            this.searchTerm=searchTerm;
-        }
-        @Override
-        protected ArrayList<Book> doInBackground(String... urls) {
-            loading=true;
+    @Override
+    public void onLoadFinished(Loader<List<Book>> loader, List<Book> books) {
+        progressBar.setVisibility(View.GONE);
+        mEmptyTextView.setText("No book found!");
 
-            if (urls.length < 1 || urls[0] == null) {
-                return null;
-            }
-            String url = Utils.buildURL(urls[0],searchTerm);
-            Log.i(LOG_TAG, "url: "+url);
-            publishProgress(0);
-            books = Utils.fetchBookData(url);
+        mAdapter.clear();
 
-            return books;
-
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            loading=true;
-            progressBar.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<Book> books) {
-            loading=false;
-            progressBar.setVisibility(View.GONE);
-            mEmptyTextView.setText("No book found!");
-
-            mAdapter.clear();
-
-            if (books != null && !books.isEmpty()) {
-                mAdapter.addAll(books);
-            }
+        if (books != null && !books.isEmpty()) {
+            mAdapter.addAll(books);
         }
     }
+
+    @Override
+    public void onLoaderReset(Loader<List<Book>> loader) {
+
+        mAdapter.clear();
+    }
+
 
 }

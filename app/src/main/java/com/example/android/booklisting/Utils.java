@@ -137,16 +137,16 @@ public final class Utils {
                 authors = new ArrayList<>();
                 JSONArray authorArray = null;
                 try {
-                     authorArray = volumeInfo.getJSONArray("authors");
-                }catch (Exception e){
-                    Log.e(LOG_TAG, i+ " this book has no info about authors");
+                    authorArray = volumeInfo.getJSONArray("authors");
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, i + " this book has no info about authors");
                 }
-                if(authorArray!=null) {
+                if (authorArray != null) {
                     for (int k = 0; k < authorArray.length(); k++) {
                         authors.add(new Author(authorArray.getString(k)));
                         Log.i(LOG_TAG, i + "author: " + k + ": " + authorArray.getString(k));
                     }
-                }else{
+                } else {
                     authors.add(new Author("unknown"));
                 }
                 //get array list of isbns: type and code
