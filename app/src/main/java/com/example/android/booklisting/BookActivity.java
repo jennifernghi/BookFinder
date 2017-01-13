@@ -25,7 +25,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
 
     private ProgressBar progressBar;
 
-    private String searchTerm = "android programming";
+    private String searchTerm = "love";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

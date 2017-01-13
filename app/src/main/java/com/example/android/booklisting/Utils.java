@@ -244,6 +244,7 @@ public final class Utils {
         Uri.Builder builder = base.buildUpon();
         builder.appendQueryParameter("q", keyword);
         builder.appendQueryParameter("maxResults", "15");
+        builder.appendQueryParameter("orderBy", "newest");
         String url = builder.toString().replace("%2B", "+");
         return url;
 

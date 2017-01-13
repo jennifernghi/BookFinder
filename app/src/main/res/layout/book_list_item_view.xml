@@ -29,8 +29,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAllCaps="true"
+            android:maxLines="2"
+            android:ellipsize="end"
             android:textColor="@color/black"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             tools:text="title" />
 
@@ -41,7 +43,7 @@
             android:ellipsize="end"
             android:maxLines="2"
             android:textColor="@color/darkGray"
-            android:textSize="14sp"
+            android:textSize="12sp"
             tools:text="author" />
 
         <TextView
@@ -52,7 +54,7 @@
 
             android:maxLines="2"
             android:textColor="@color/darkGray"
-            android:textSize="14sp"
+            android:textSize="12sp"
             tools:text="ISBN" />
     </LinearLayout>
 
