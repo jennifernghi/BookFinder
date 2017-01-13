@@ -143,13 +143,25 @@ public final class Utils {
 
                 //get array list of isbns: type and code
                 isbns = new ArrayList<>();
-                JSONArray industryIdentifiers = volumeInfo.getJSONArray("industryIdentifiers");
-                for (int j = 0; j < industryIdentifiers.length(); j++) {
-                    JSONObject industryIdentifiersObject = (JSONObject) industryIdentifiers.get(j);
-                    String isbnType = industryIdentifiersObject.getString("type");
-                    String isbn = industryIdentifiersObject.getString("identifier");
+                JSONArray industryIdentifiers =null;
+                try {
+                    industryIdentifiers = volumeInfo.getJSONArray("industryIdentifiers");
+                }catch (Exception e){
+                    Log.e(LOG_TAG, i + " this book has no industryIdentifiers");
+                }
+
+                if(industryIdentifiers!=null) {
+                    for (int j = 0; j < industryIdentifiers.length(); j++) {
+                        JSONObject industryIdentifiersObject = (JSONObject) industryIdentifiers.get(j);
+                        String isbnType = industryIdentifiersObject.getString("type");
+                        String isbn = industryIdentifiersObject.getString("identifier");
+                        isbns.add(new ISBN(isbnType, isbn));
+                        Log.i(LOG_TAG, i + "isbn: " + j + ": " + isbnType + " " + isbn);
+                    }
+                }else {
+                    String isbnType = "";
+                    String isbn = "";
                     isbns.add(new ISBN(isbnType, isbn));
-                    Log.i(LOG_TAG, i + "isbn: "+ j + ": " +isbnType + " " + isbn);
                 }
 
                 //get book bitmap image from url link
@@ -211,7 +223,7 @@ public final class Utils {
         Uri base = Uri.parse(urlString);
         Uri.Builder builder = base.buildUpon();
         builder.appendQueryParameter("q",keyword);
-        builder.appendQueryParameter("maxResults","6");
+        builder.appendQueryParameter("maxResults","15");
         String url = builder.toString().replace("%2B","+");
         return url;
 

@@ -55,9 +55,17 @@ public class Book {
         String str = "";
         for (int i = 0; i < mIsbn.size(); i++) {
             if (i != mIsbn.size() - 1) {
-                str += mIsbn.get(i).getType() + ": " + mIsbn.get(i).getIsbn() + ", ";
+                if(!mIsbn.get(i).getType().equals("")||!mIsbn.get(i).getIsbn().equals("")){
+                    str += mIsbn.get(i).getType() + ": " + mIsbn.get(i).getIsbn() + ", ";
+                }else{
+                    str += "";
+                }
             } else {
-                str += mIsbn.get(i).getType() + ": " + mIsbn.get(i).getIsbn() + ". ";
+                if(!mIsbn.get(i).getType().equals("")||!mIsbn.get(i).getIsbn().equals("")) {
+                    str += mIsbn.get(i).getType() + ": " + mIsbn.get(i).getIsbn() + ". ";
+                }else{
+                    str += "";
+                }
             }
         }
         return str;
