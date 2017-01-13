@@ -2,6 +2,7 @@ package com.example.android.booklisting;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -14,6 +15,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -130,12 +132,13 @@ public final class Utils {
 
                 // get book title
                 String title = volumeInfo.getString("title");
-
+                Log.i(LOG_TAG, i + "title" + title);
                 //get array of authors
                 authors = new ArrayList<>();
                 JSONArray authorArray = volumeInfo.getJSONArray("authors");
                 for (int k = 0; k < authorArray.length(); k++) {
                     authors.add(new Author(authorArray.getString(k)));
+                    Log.i(LOG_TAG, i + "author: "+ k + ": " +authorArray.getString(k));
                 }
 
                 //get array list of isbns: type and code
@@ -146,12 +149,13 @@ public final class Utils {
                     String isbnType = industryIdentifiersObject.getString("type");
                     String isbn = industryIdentifiersObject.getString("identifier");
                     isbns.add(new ISBN(isbnType, isbn));
+                    Log.i(LOG_TAG, i + "isbn: "+ j + ": " +isbnType + " " + isbn);
                 }
 
                 //get book bitmap image from url link
                 JSONObject imageLinks = volumeInfo.getJSONObject("imageLinks");
                 String imageUrl = imageLinks.getString("thumbnail").trim();
-
+                Log.i(LOG_TAG, i + "imgurl: " +imageUrl);
 
                 //convert imageUrl to Bitmap img
                 InputStream in = new URL(imageUrl).openStream();
@@ -180,6 +184,7 @@ public final class Utils {
         try {
             //step 2 and 3
             response = downloadJsonResponse(url);
+            Log.i(LOG_TAG,response);
         } catch (IOException e) {
             Log.e(LOG_TAG, "IOEXception: downloadJsonResponse(url) ");
         }
@@ -190,5 +195,25 @@ public final class Utils {
 
 
         return books;
+    }
+
+    public static String buildURL(String urlString, String searchterms){
+        String[] params = searchterms.trim().split(" ");
+        String keyword = "";
+        for(int i =0; i<params.length; i++){
+            if(i!=params.length-1) {
+                keyword += params[i] + "+";
+            }else{
+                keyword += params[i];
+            }
+        }
+
+        Uri base = Uri.parse(urlString);
+        Uri.Builder builder = base.buildUpon();
+        builder.appendQueryParameter("q",keyword);
+        builder.appendQueryParameter("maxResults","6");
+        String url = builder.toString().replace("%2B","+");
+        return url;
+
     }
 }
