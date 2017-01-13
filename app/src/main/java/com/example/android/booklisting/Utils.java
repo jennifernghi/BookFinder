@@ -15,7 +15,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -138,19 +137,19 @@ public final class Utils {
                 JSONArray authorArray = volumeInfo.getJSONArray("authors");
                 for (int k = 0; k < authorArray.length(); k++) {
                     authors.add(new Author(authorArray.getString(k)));
-                    Log.i(LOG_TAG, i + "author: "+ k + ": " +authorArray.getString(k));
+                    Log.i(LOG_TAG, i + "author: " + k + ": " + authorArray.getString(k));
                 }
 
                 //get array list of isbns: type and code
                 isbns = new ArrayList<>();
-                JSONArray industryIdentifiers =null;
+                JSONArray industryIdentifiers = null;
                 try {
                     industryIdentifiers = volumeInfo.getJSONArray("industryIdentifiers");
-                }catch (Exception e){
+                } catch (Exception e) {
                     Log.e(LOG_TAG, i + " this book has no industryIdentifiers");
                 }
 
-                if(industryIdentifiers!=null) {
+                if (industryIdentifiers != null) {
                     for (int j = 0; j < industryIdentifiers.length(); j++) {
                         JSONObject industryIdentifiersObject = (JSONObject) industryIdentifiers.get(j);
                         String isbnType = industryIdentifiersObject.getString("type");
@@ -158,23 +157,35 @@ public final class Utils {
                         isbns.add(new ISBN(isbnType, isbn));
                         Log.i(LOG_TAG, i + "isbn: " + j + ": " + isbnType + " " + isbn);
                     }
-                }else {
+                } else {
                     String isbnType = "";
                     String isbn = "";
                     isbns.add(new ISBN(isbnType, isbn));
                 }
 
                 //get book bitmap image from url link
-                JSONObject imageLinks = volumeInfo.getJSONObject("imageLinks");
-                String imageUrl = imageLinks.getString("thumbnail").trim();
-                Log.i(LOG_TAG, i + "imgurl: " +imageUrl);
+                JSONObject imageLinks = null;
+                String imageUrl = null;
 
-                //convert imageUrl to Bitmap img
-                InputStream in = new URL(imageUrl).openStream();
-                image = BitmapFactory.decodeStream(in);
+                try {
+                    imageLinks = volumeInfo.getJSONObject("imageLinks");
+                    imageUrl = imageLinks.getString("thumbnail").trim();
+                    Log.i(LOG_TAG, i + "imgurl: " + imageUrl);
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, i + " this book has no thumbnail image");
+                }
 
-                //add book to arrayList
-                books.add(new Book(title, authors, isbns, image));
+                if (imageLinks != null) {
+                    //convert imageUrl to Bitmap img
+                    InputStream in = new URL(imageUrl).openStream();
+                    image = BitmapFactory.decodeStream(in);
+                    //add book to arrayList
+                    books.add(new Book(title, authors, isbns, image));
+                } else {
+                    //add book to arrayList
+                    books.add(new Book(title, authors, isbns));
+                }
+
             }
         } catch (JSONException e) {
             Log.e(LOG_TAG, "Parsing error");
@@ -196,7 +207,7 @@ public final class Utils {
         try {
             //step 2 and 3
             response = downloadJsonResponse(url);
-            Log.i(LOG_TAG,response);
+            Log.i(LOG_TAG, response);
         } catch (IOException e) {
             Log.e(LOG_TAG, "IOEXception: downloadJsonResponse(url) ");
         }
@@ -209,22 +220,22 @@ public final class Utils {
         return books;
     }
 
-    public static String buildURL(String urlString, String searchterms){
+    public static String buildURL(String urlString, String searchterms) {
         String[] params = searchterms.trim().split(" ");
         String keyword = "";
-        for(int i =0; i<params.length; i++){
-            if(i!=params.length-1) {
+        for (int i = 0; i < params.length; i++) {
+            if (i != params.length - 1) {
                 keyword += params[i] + "+";
-            }else{
+            } else {
                 keyword += params[i];
             }
         }
 
         Uri base = Uri.parse(urlString);
         Uri.Builder builder = base.buildUpon();
-        builder.appendQueryParameter("q",keyword);
-        builder.appendQueryParameter("maxResults","15");
-        String url = builder.toString().replace("%2B","+");
+        builder.appendQueryParameter("q", keyword);
+        builder.appendQueryParameter("maxResults", "15");
+        String url = builder.toString().replace("%2B", "+");
         return url;
 
     }

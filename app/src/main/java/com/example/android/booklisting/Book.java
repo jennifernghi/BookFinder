@@ -9,6 +9,7 @@ import java.util.ArrayList;
  */
 
 public class Book {
+
     private String mTitle;
     private ArrayList<Author> mAuthors;
     private ArrayList<ISBN> mIsbn;
@@ -21,6 +22,12 @@ public class Book {
         this.mImage = image;
     }
 
+    public Book(String title, ArrayList<Author> authors, ArrayList<ISBN> isbn) {
+        this.mTitle = title;
+        this.mAuthors = authors;
+        this.mIsbn = isbn;
+        this.mImage = null;
+    }
 
     public String getTitle() {
         return this.mTitle;
@@ -55,15 +62,15 @@ public class Book {
         String str = "";
         for (int i = 0; i < mIsbn.size(); i++) {
             if (i != mIsbn.size() - 1) {
-                if(!mIsbn.get(i).getType().equals("")||!mIsbn.get(i).getIsbn().equals("")){
+                if (!mIsbn.get(i).getType().equals("") || !mIsbn.get(i).getIsbn().equals("")) {
                     str += mIsbn.get(i).getType() + ": " + mIsbn.get(i).getIsbn() + ", ";
-                }else{
+                } else {
                     str += "";
                 }
             } else {
-                if(!mIsbn.get(i).getType().equals("")||!mIsbn.get(i).getIsbn().equals("")) {
+                if (!mIsbn.get(i).getType().equals("") || !mIsbn.get(i).getIsbn().equals("")) {
                     str += mIsbn.get(i).getType() + ": " + mIsbn.get(i).getIsbn() + ". ";
-                }else{
+                } else {
                     str += "";
                 }
             }

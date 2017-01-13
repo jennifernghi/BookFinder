@@ -1,6 +1,7 @@
 package com.example.android.booklisting;
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,9 +31,16 @@ public class BookAdapter extends ArrayAdapter<Book> {
 
         currentBook = getItem(position);
 
-        //Show book image
         ImageView imageView = (ImageView) convertView.findViewById(R.id.book_image);
-        imageView.setImageBitmap(currentBook.getmImage());
+
+        if (currentBook.getmImage() != null) {
+            //Show book image
+            imageView.setImageBitmap(currentBook.getmImage());
+        } else {
+            //Show book image
+            imageView.setImageBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.book_cover_unavailable));
+        }
+
 
         //show book title
         TextView titleTextView = (TextView) convertView.findViewById(R.id.book_title);
