@@ -7,11 +7,11 @@ package com.example.android.booklisting;
 public class Author {
     private String mName;
 
-    public Author(String name){
-        this.mName=name;
+    public Author(String name) {
+        this.mName = name;
     }
 
-    public String getName(){
+    public String getName() {
         return this.mName;
     }
 }

@@ -1,11 +1,9 @@
 package com.example.android.booklisting;
 
-import android.content.Loader;
-import android.os.Bundle;
-
-
 import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.content.Loader;
+import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -19,12 +17,12 @@ import java.util.List;
 
 public class BookActivity extends AppCompatActivity implements LoaderCallbacks<List<Book>> {
     final static String LOG_TAG = BookActivity.class.getSimpleName();
-    //static final String URL = "https://www.googleapis.com/books/v1/volumes?q=let's+get+naked&maxResults=20";
+    final static int LOADER_CONSTANT =1;
     static final String URL = "https://www.googleapis.com/books/v1/volumes";
     private BookAdapter mAdapter = null;
-    //private ArrayList<Book> books = null;
+
     private TextView mEmptyTextView;
-    //private boolean loading = true;
+
     private ProgressBar progressBar;
 
     private String searchTerm = "android programming";
@@ -42,7 +40,6 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         listView.setAdapter(mAdapter);
 
 
-
         Button searchButton = (Button) findViewById(R.id.search_button);
         final EditText searchEditText = (EditText) findViewById(R.id.search_input);
 
@@ -50,7 +47,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(searchEditText.getText()!=null || searchEditText.getText().toString().equals("")) {
+                if (searchEditText.getText() != null || searchEditText.getText().toString().equals("")) {
                     mAdapter.clear();
                     searchTerm = searchEditText.getText().toString().trim();
                     searchBook();
@@ -61,12 +58,12 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
 
         LoaderManager loaderManager = getLoaderManager();
 
-        loaderManager.initLoader(1,null,this);
+        loaderManager.initLoader(LOADER_CONSTANT, null, this);
 
     }
 
     private void searchBook() {
-        getLoaderManager().restartLoader(1, null, this);
+        getLoaderManager().restartLoader(LOADER_CONSTANT, null, this);
     }
 
 
@@ -91,7 +88,6 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
 
     @Override
     public void onLoaderReset(Loader<List<Book>> loader) {
-
         mAdapter.clear();
     }
 

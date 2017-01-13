@@ -1,6 +1,5 @@
 package com.example.android.booklisting;
 
-import android.app.Activity;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.util.Log;
@@ -16,10 +15,11 @@ public class BookLoader extends AsyncTaskLoader<List<Book>> {
     final static String LOG_TAG = BookLoader.class.getSimpleName();
     private String mUrl;
     private String mSearchTerm;
+
     public BookLoader(Context context, String url, String searchTerm) {
         super(context);
-        this.mUrl=url;
-        this.mSearchTerm=searchTerm;
+        this.mUrl = url;
+        this.mSearchTerm = searchTerm;
     }
 
     @Override
@@ -34,8 +34,8 @@ public class BookLoader extends AsyncTaskLoader<List<Book>> {
         if (mUrl.length() < 1 || mUrl == null) {
             return null;
         }
-        String url = Utils.buildURL(mUrl,mSearchTerm);
-        Log.i(LOG_TAG, "url: "+url);
+        String url = Utils.buildURL(mUrl, mSearchTerm);
+        Log.i(LOG_TAG, "url: " + url);
 
         books = Utils.fetchBookData(url);
 
