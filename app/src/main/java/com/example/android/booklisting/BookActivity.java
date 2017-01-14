@@ -23,6 +23,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     static final String URL = "https://www.googleapis.com/books/v1/volumes";
     private BookAdapter mAdapter = null;
 
+    private int counter = 0;
     private TextView mEmptyTextView;
 
     private ProgressBar progressBar;
@@ -32,7 +33,8 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     private LoaderManager loaderManager;
 
     private View footView;
-    private Button loadMoreButton;
+    private Button nextButton;
+    private Button previousButton;
     private ListView listView;
 
     private int indexStart=0;
@@ -46,7 +48,8 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
 
         footView = ((LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.book_list_view_footer, null, false);
 
-        loadMoreButton = (Button) footView.findViewById(R.id.load_more);
+        nextButton = (Button) footView.findViewById(R.id.next);
+        previousButton = (Button) footView.findViewById(R.id.previous);
 
         mEmptyTextView = (TextView) findViewById(R.id.empty_view);
 
@@ -65,6 +68,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                counter=0;
                 if (searchEditText.getText() != null || searchEditText.getText().toString().equals("")) {
                     mAdapter.clear();
                     indexStart=0;
@@ -77,7 +81,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         loaderManager = getLoaderManager();
         loaderManager.initLoader(LOADER_CONSTANT, null, this);
 
-        loadMoreButton.setOnClickListener(new View.OnClickListener() {
+        nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 loaderManager.restartLoader(LOADER_CONSTANT, null, BookActivity.this);
@@ -86,6 +90,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     }
 
     private void searchBook() {
+
         loaderManager.restartLoader(LOADER_CONSTANT, null, this);
     }
 
@@ -105,6 +110,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         mAdapter.clear();
 
         if (books != null && !books.isEmpty()) {
+            ++counter;
             indexStart +=books.size();
             Log.i(LOG_TAG,"indexStart = " + indexStart);
             mAdapter.addAll(books);
@@ -112,6 +118,13 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             listView.smoothScrollToPosition(0);
             listView.removeFooterView(footView);
             listView.addFooterView(footView);
+            nextButton.setVisibility(View.VISIBLE);
+            if(counter>1){
+                previousButton.setVisibility(View.VISIBLE);
+            }else{
+                previousButton.setVisibility(View.GONE);
+            }
+
         }
     }
 
