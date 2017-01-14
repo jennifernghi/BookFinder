@@ -4,6 +4,7 @@ import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Loader;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -38,12 +39,24 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     private ListView listView;
 
     private int indexStart=0;
-
+    private int orientationChanged = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.book_list_view);
+        if(savedInstanceState!=null){
+            orientationChanged=1;
+            int savedCounter = savedInstanceState.getInt("counter");
+            counter=savedCounter;
+            Log.i(LOG_TAG,"counter after orientation changed= " +counter);
+
+            int savedIndexStart = savedInstanceState.getInt("indexStart");
+            indexStart=savedIndexStart;
+            Log.i(LOG_TAG,"indexstart after orientation changed= " +indexStart);
+        }else {
+            Log.i(LOG_TAG,"savedInstanceState =  null");
+        }
         progressBar = (ProgressBar) findViewById(R.id.loading_indicator);
 
         footView = ((LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.book_list_view_footer, null, false);
@@ -71,6 +84,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
                 counter=0;
                 if (searchEditText.getText() != null || searchEditText.getText().toString().equals("")) {
                     mAdapter.clear();
+                    orientationChanged=-1;
                     indexStart=0;
                     searchTerm = searchEditText.getText().toString().trim();
                     searchBook();
@@ -84,6 +98,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                orientationChanged=-1;
                 loaderManager.restartLoader(LOADER_CONSTANT, null, BookActivity.this);
             }
         });
@@ -110,9 +125,12 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         mAdapter.clear();
 
         if (books != null && !books.isEmpty()) {
-            ++counter;
-            indexStart +=books.size();
+            if(orientationChanged == -1) {
+                ++counter;
+                indexStart += books.size();
+            }
             Log.i(LOG_TAG,"indexStart = " + indexStart);
+            Log.i(LOG_TAG,"counter = " + counter);
             mAdapter.addAll(books);
             mAdapter.notifyDataSetChanged();
             listView.smoothScrollToPosition(0);
@@ -133,4 +151,12 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         mAdapter.clear();
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("counter", counter);
+        Log.i(LOG_TAG,"save counter = " +outState.getInt("counter"));
+        outState.putInt("indexStart", indexStart);
+        Log.i(LOG_TAG,"save instart = " +outState.getInt("indexStart"));
+    }
 }
