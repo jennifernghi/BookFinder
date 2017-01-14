@@ -19,158 +19,163 @@ import java.util.List;
 
 public class BookActivity extends AppCompatActivity implements LoaderCallbacks<List<Book>> {
     final static String LOG_TAG = BookActivity.class.getSimpleName();
+
     final static int LOADER_CONSTANT = 1;
     static final String URL = "https://www.googleapis.com/books/v1/volumes";
+
     private BookAdapter mAdapter = null;
-
-    private int counter = 0;
-    private TextView mEmptyTextView;
-
+    private TextView mEmptyTextView;//emptyview
     private ProgressBar progressBar;
-
-    private String searchTerm = "love";
-
     private LoaderManager loaderManager;
-
     private View footView;
     private Button nextButton;
     private Button previousButton;
     private ListView listView;
     private EditText searchEditText;
+    private Button searchButton;
 
-    private int indexStart = 0;
+    //following variables need to be saved
+    private int counter = 0; // +1 when next is clicked and -1 when previous is clicked
+    private int indexStart = 0;// parameters indexStart in json response
     private int booksSize = 0;
+    private String searchTerm = "love"; //value for searching after q=
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.book_list_view);
+        //retrieve saved variables
         if (savedInstanceState != null) {
-            //orientationChanged=1;
-            int savedCounter = savedInstanceState.getInt("counter");
-            counter = savedCounter;
-            Log.i(LOG_TAG, "counter after orientation changed= " + counter);
 
-            int savedIndexStart = savedInstanceState.getInt("indexStart");
-            indexStart = savedIndexStart;
-            Log.i(LOG_TAG, "indexstart after orientation changed= " + indexStart);
+            counter = savedInstanceState.getInt("counter");
 
-            int savedBooksSize = savedInstanceState.getInt("booksSize");
-            booksSize = savedBooksSize;
-            Log.i(LOG_TAG, "booksSize after orientation changed= " + booksSize);
+            indexStart = savedInstanceState.getInt("indexStart");
 
-            String savedSearchTerm = savedInstanceState.getString("searchTerm");
-            searchTerm = savedSearchTerm;
+            booksSize = savedInstanceState.getInt("booksSize");
+
+            searchTerm = savedInstanceState.getString("searchTerm");
             searchEditText = (EditText) findViewById(R.id.search_input);
             searchEditText.setText(searchTerm);
-            Log.i(LOG_TAG, "searchterms after orientation changed= " + searchTerm);
 
 
         } else {
             Log.i(LOG_TAG, "savedInstanceState =  null");
         }
-        progressBar = (ProgressBar) findViewById(R.id.loading_indicator);
-
-        footView = ((LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.book_list_view_footer, null, false);
-
-        nextButton = (Button) footView.findViewById(R.id.next);
-        previousButton = (Button) footView.findViewById(R.id.previous);
-
-        mEmptyTextView = (TextView) findViewById(R.id.empty_view);
-
-        listView = (ListView) findViewById(R.id.list);
+        //initialize views
+        populateViews();
+        //set empty view for list view
         listView.setEmptyView(mEmptyTextView);
 
-
+        //initialize adapter with empty ArrayList<Book>
         mAdapter = new BookAdapter(this, new ArrayList<Book>());
         listView.setAdapter(mAdapter);
 
-
-        Button searchButton = (Button) findViewById(R.id.search_button);
-        searchEditText = (EditText) findViewById(R.id.search_input);
+        //searchEditText shows searchterm
         searchEditText.setText(searchTerm);
+        //cursor is focused at the end of the word
+        searchEditText.setSelection(searchTerm.length());
 
-
+        //event for search button
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                counter = 0;
+                counter = 0; //reset counter
                 if (searchEditText.getText() != null || searchEditText.getText().toString().equals("")) {
-                    mAdapter.clear();
-                    orientationChanged = -1;
-                    indexStart = 0;
-                    searchTerm = searchEditText.getText().toString().trim();
+                    mAdapter.clear(); //clear adapter
+                    indexStart = 0;//reset indexStart
+                    searchTerm = searchEditText.getText().toString().trim();// get new searchTerm
                     searchBook();
                 }
             }
         });
 
+        // initialize loaderManager
         loaderManager = getLoaderManager();
         loaderManager.initLoader(LOADER_CONSTANT, null, this);
 
+        //event for next button
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                ++counter;
-                indexStart += booksSize;
-                Log.i(LOG_TAG, "next: indexStart =" + indexStart);
-                Log.i(LOG_TAG, "next: counter =" + counter);
-                orientationChanged = -1;
+                ++counter; //+1 when clicked
+                indexStart += booksSize; //new indexStart
+
+                //restart loader
                 loaderManager.restartLoader(LOADER_CONSTANT, null, BookActivity.this);
             }
         });
 
+        //event for previous button
         previousButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                --counter;
-                indexStart -= booksSize;
-                orientationChanged = -1;
+                --counter; //-1 when clicked
+                indexStart -= booksSize;//new indexStart
 
-                Log.i(LOG_TAG, "previous: indexStart =" + indexStart);
-                Log.i(LOG_TAG, "previous: counter =" + counter);
+                //restart loader
                 loaderManager.restartLoader(LOADER_CONSTANT, null, BookActivity.this);
             }
         });
     }
 
+    /**
+     * call when search button is clicked
+     */
     private void searchBook() {
 
+        //restart loader with new search term
         loaderManager.restartLoader(LOADER_CONSTANT, null, this);
     }
 
 
     @Override
+    /**
+     * fork off loader background thread
+     */
     public Loader<List<Book>> onCreateLoader(int id, Bundle args) {
+        //show progressBar
         progressBar.setVisibility(View.VISIBLE);
+        //hide empty view
         mEmptyTextView.setVisibility(View.GONE);
         return new BookLoader(this, URL, searchTerm, indexStart);
     }
 
     @Override
+    /**
+     * after finish loading
+     * update UI
+     */
     public void onLoadFinished(Loader<List<Book>> loader, List<Book> books) {
+        //hide progressBar
         progressBar.setVisibility(View.GONE);
+        //set text for empty view
         mEmptyTextView.setText("No book found!");
 
         mAdapter.clear();
-
+        //if books sucessfully downloaded
         if (books != null && !books.isEmpty()) {
-            /*if(orientationChanged == -1) {
-                ++counter;
-                indexStart += books.size();
-            }*/
+            //initialize books size
             booksSize = books.size();
-            Log.i(LOG_TAG, "onLoadFinished: indexStart = " + indexStart);
-            Log.i(LOG_TAG, "onLoadFinished: counter = " + counter);
+
+            //add all books to adapter
             mAdapter.addAll(books);
             mAdapter.notifyDataSetChanged();
+
+            //automatically scroll to the top of the listview
             listView.smoothScrollToPosition(0);
+
+            //set footview
             listView.removeFooterView(footView);
             listView.addFooterView(footView);
+
+            //show next button
+
             nextButton.setVisibility(View.VISIBLE);
+
+            //show previous button
             if (counter >= 1) {
                 previousButton.setVisibility(View.VISIBLE);
             } else {
@@ -186,15 +191,36 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     }
 
     @Override
+    /**
+     * save 4 variables: counter, indexStart, booksSize, searchTerm
+     */
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("counter", counter);
-        Log.i(LOG_TAG, "save counter = " + outState.getInt("counter"));
+
         outState.putInt("indexStart", indexStart);
-        Log.i(LOG_TAG, "save instart = " + outState.getInt("indexStart"));
+
         outState.putInt("booksSize", booksSize);
-        Log.i(LOG_TAG, "save booksSize = " + outState.getInt("booksSize"));
+
         outState.putString("searchTerm", searchTerm);
-        Log.i(LOG_TAG, "save searchTerm = " + outState.getString("searchTerm"));
+
+    }
+
+    /**
+     * initialize all available views
+     */
+    private void populateViews() {
+        progressBar = (ProgressBar) findViewById(R.id.loading_indicator);
+
+        footView = ((LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.book_list_view_footer, null, false);
+
+        nextButton = (Button) footView.findViewById(R.id.next);
+        previousButton = (Button) footView.findViewById(R.id.previous);
+
+        mEmptyTextView = (TextView) findViewById(R.id.empty_view);
+
+        listView = (ListView) findViewById(R.id.list);
+        searchButton = (Button) findViewById(R.id.search_button);
+        searchEditText = (EditText) findViewById(R.id.search_input);
     }
 }
