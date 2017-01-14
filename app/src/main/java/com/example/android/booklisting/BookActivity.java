@@ -38,7 +38,8 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     private int counter = 0; // +1 when next is clicked and -1 when previous is clicked
     private int indexStart = 0;// parameters indexStart in json response
     private int booksSize = 0;
-    private String searchTerm = "love"; //value for searching after q=
+    private String searchTerm = "love"; //value for searching after q=...
+    private int totalItems = -1;
 
 
     @Override
@@ -98,12 +99,15 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (booksSize == 10) {
+                    ++counter; //+1 when clicked
+                    indexStart += booksSize; //new indexStart
+                    Log.i(LOG_TAG, "next: booksize = " + booksSize);
+                    Log.i(LOG_TAG, "next: indexstart = " + indexStart);
 
-                ++counter; //+1 when clicked
-                indexStart += booksSize; //new indexStart
-
-                //restart loader
-                loaderManager.restartLoader(LOADER_CONSTANT, null, BookActivity.this);
+                    //restart loader
+                    loaderManager.restartLoader(LOADER_CONSTANT, null, BookActivity.this);
+                }
             }
         });
 
@@ -113,7 +117,13 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             public void onClick(View v) {
 
                 --counter; //-1 when clicked
-                indexStart -= booksSize;//new indexStart
+                if (booksSize == 10) {
+                    indexStart -= booksSize;//new indexStart
+                } else {
+                    indexStart = 0;
+                }
+                Log.i(LOG_TAG, "previous: indexstart = " + indexStart);
+                Log.i(LOG_TAG, "previous: booksize = " + booksSize);
 
                 //restart loader
                 loaderManager.restartLoader(LOADER_CONSTANT, null, BookActivity.this);
@@ -157,12 +167,18 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         mAdapter.clear();
         //if books sucessfully downloaded
         if (books != null && !books.isEmpty()) {
-            //initialize books size
-            booksSize = books.size();
+            //get totalItem from Util
+            totalItems = Utils.getTotalItems();
+
+            Log.i(LOG_TAG, "totalItems = " + totalItems);
+
 
             //add all books to adapter
             mAdapter.addAll(books);
             mAdapter.notifyDataSetChanged();
+
+            //initialize books size
+            booksSize = mAdapter.getCount();
 
             //automatically scroll to the top of the listview
             listView.smoothScrollToPosition(0);
@@ -172,8 +188,12 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             listView.addFooterView(footView);
 
             //show next button
+            if (booksSize == 10) {
+                nextButton.setVisibility(View.VISIBLE);
+            } else {
+                nextButton.setVisibility(View.GONE);
+            }
 
-            nextButton.setVisibility(View.VISIBLE);
 
             //show previous button
             if (counter >= 1) {
