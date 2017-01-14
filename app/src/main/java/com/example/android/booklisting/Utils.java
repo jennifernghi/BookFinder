@@ -130,9 +130,16 @@ public final class Utils {
                 JSONObject volumeInfo = item.getJSONObject("volumeInfo");
 
                 // get book title
-                String title = volumeInfo.getString("title");
-                Log.i(LOG_TAG, i + "title" + title);
+                String title = null;
+                try {
+                     title = volumeInfo.getString("title");
+                }catch (Exception e){
+                    Log.e(LOG_TAG, i+" this book has no title");
+                }
 
+                if(title==null){
+                    title = "unknown";
+                }
                 //get array of authors
                 authors = new ArrayList<>();
                 JSONArray authorArray = null;

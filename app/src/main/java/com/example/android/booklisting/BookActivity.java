@@ -32,7 +32,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
 
     private View footView;
     private Button loadMoreButton;
-    ListView listView;
+    private ListView listView;
 
 
     @Override
@@ -44,6 +44,12 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         footView = ((LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.book_list_view_footer, null, false);
 
         loadMoreButton = (Button) footView.findViewById(R.id.load_more);
+        loadMoreButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
         mEmptyTextView = (TextView) findViewById(R.id.empty_view);
 
         listView = (ListView) findViewById(R.id.list);
@@ -69,9 +75,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             }
         });
 
-
         loaderManager = getLoaderManager();
-
         loaderManager.initLoader(LOADER_CONSTANT, null, this);
 
 
