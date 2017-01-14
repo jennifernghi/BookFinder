@@ -126,18 +126,19 @@ public final class Utils {
             JSONObject root = new JSONObject(response);
             JSONArray items = root.getJSONArray("items");
             for (int i = 0; i < items.length(); i++) {
+                Log.i(LOG_TAG, "book "+ i);
                 JSONObject item = (JSONObject) items.get(i);
                 JSONObject volumeInfo = item.getJSONObject("volumeInfo");
 
                 // get book title
                 String title = null;
                 try {
-                     title = volumeInfo.getString("title");
-                }catch (Exception e){
-                    Log.e(LOG_TAG, i+" this book has no title");
+                    title = volumeInfo.getString("title");
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, i + " this book has no title");
                 }
 
-                if(title==null){
+                if (title == null) {
                     title = "unknown";
                 }
                 //get array of authors
@@ -151,7 +152,7 @@ public final class Utils {
                 if (authorArray != null) {
                     for (int k = 0; k < authorArray.length(); k++) {
                         authors.add(new Author(authorArray.getString(k)));
-                        Log.i(LOG_TAG, i + "author: " + k + ": " + authorArray.getString(k));
+                       // Log.i(LOG_TAG, i + "author: " + k + ": " + authorArray.getString(k));
                     }
                 } else {
                     authors.add(new Author("unknown"));
@@ -171,7 +172,7 @@ public final class Utils {
                         String isbnType = industryIdentifiersObject.getString("type");
                         String isbn = industryIdentifiersObject.getString("identifier");
                         isbns.add(new ISBN(isbnType, isbn));
-                        Log.i(LOG_TAG, i + "isbn: " + j + ": " + isbnType + " " + isbn);
+                        //Log.i(LOG_TAG, i + "isbn: " + j + ": " + isbnType + " " + isbn);
                     }
                 } else {
                     String isbnType = "";
@@ -186,7 +187,7 @@ public final class Utils {
                 try {
                     imageLinks = volumeInfo.getJSONObject("imageLinks");
                     imageUrl = imageLinks.getString("thumbnail").trim();
-                    Log.i(LOG_TAG, i + "imgurl: " + imageUrl);
+                    //Log.i(LOG_TAG, i + "imgurl: " + imageUrl);
                 } catch (Exception e) {
                     Log.e(LOG_TAG, i + " this book has no thumbnail image");
                 }
@@ -223,7 +224,7 @@ public final class Utils {
         try {
             //step 2 and 3
             response = downloadJsonResponse(url);
-            Log.i(LOG_TAG, response);
+           // Log.i(LOG_TAG, response);
         } catch (IOException e) {
             Log.e(LOG_TAG, "IOEXception: downloadJsonResponse(url) ");
         }
@@ -250,7 +251,7 @@ public final class Utils {
         Uri base = Uri.parse(urlString);
         Uri.Builder builder = base.buildUpon();
         builder.appendQueryParameter("q", keyword);
-        builder.appendQueryParameter("maxResults", "20");
+        builder.appendQueryParameter("maxResults", "11");
         builder.appendQueryParameter("orderBy", "newest");
         builder.appendQueryParameter("startIndex", String.valueOf(startIndex));
         String url = builder.toString().replace("%2B", "+");

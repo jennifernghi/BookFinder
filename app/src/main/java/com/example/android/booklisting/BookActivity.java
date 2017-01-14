@@ -5,6 +5,7 @@ import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Loader;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -34,6 +35,8 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     private Button loadMoreButton;
     private ListView listView;
 
+    private int indexStart=0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,12 +47,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         footView = ((LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.book_list_view_footer, null, false);
 
         loadMoreButton = (Button) footView.findViewById(R.id.load_more);
-        loadMoreButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-            }
-        });
         mEmptyTextView = (TextView) findViewById(R.id.empty_view);
 
         listView = (ListView) findViewById(R.id.list);
@@ -69,6 +67,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             public void onClick(View v) {
                 if (searchEditText.getText() != null || searchEditText.getText().toString().equals("")) {
                     mAdapter.clear();
+                    indexStart=0;
                     searchTerm = searchEditText.getText().toString().trim();
                     searchBook();
                 }
@@ -78,7 +77,12 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         loaderManager = getLoaderManager();
         loaderManager.initLoader(LOADER_CONSTANT, null, this);
 
-
+        loadMoreButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loaderManager.restartLoader(LOADER_CONSTANT, null, BookActivity.this);
+            }
+        });
     }
 
     private void searchBook() {
@@ -90,7 +94,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     public Loader<List<Book>> onCreateLoader(int id, Bundle args) {
         progressBar.setVisibility(View.VISIBLE);
         mEmptyTextView.setVisibility(View.GONE);
-        return new BookLoader(this, URL, searchTerm, 0);
+        return new BookLoader(this, URL, searchTerm, indexStart);
     }
 
     @Override
@@ -101,8 +105,11 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         mAdapter.clear();
 
         if (books != null && !books.isEmpty()) {
-
+            indexStart +=books.size();
+            Log.i(LOG_TAG,"indexStart = " + indexStart);
             mAdapter.addAll(books);
+            mAdapter.notifyDataSetChanged();
+            listView.smoothScrollToPosition(0);
             listView.addFooterView(footView);
         }
     }
