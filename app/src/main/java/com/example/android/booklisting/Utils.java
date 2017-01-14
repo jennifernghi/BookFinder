@@ -229,7 +229,7 @@ public final class Utils {
         return books;
     }
 
-    public static String buildURL(String urlString, String searchterms) {
+    public static String buildURL(String urlString, String searchterms, int startIndex) {
         String[] params = searchterms.trim().split(" ");
         String keyword = "";
         for (int i = 0; i < params.length; i++) {
@@ -243,8 +243,9 @@ public final class Utils {
         Uri base = Uri.parse(urlString);
         Uri.Builder builder = base.buildUpon();
         builder.appendQueryParameter("q", keyword);
-        builder.appendQueryParameter("maxResults", "15");
+        builder.appendQueryParameter("maxResults", "20");
         builder.appendQueryParameter("orderBy", "newest");
+        builder.appendQueryParameter("startIndex", String.valueOf(startIndex));
         String url = builder.toString().replace("%2B", "+");
         return url;
 

@@ -5,6 +5,7 @@ import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Loader;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,7 +18,7 @@ import java.util.List;
 
 public class BookActivity extends AppCompatActivity implements LoaderCallbacks<List<Book>> {
     final static String LOG_TAG = BookActivity.class.getSimpleName();
-    final static int LOADER_CONSTANT =1;
+    final static int LOADER_CONSTANT = 1;
     static final String URL = "https://www.googleapis.com/books/v1/volumes";
     private BookAdapter mAdapter = null;
 
@@ -27,15 +28,28 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
 
     private String searchTerm = "love";
 
+    private LoaderManager loaderManager;
+
+    private View footView;
+    private Button loadMoreButton;
+    ListView listView;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.book_list_view);
         progressBar = (ProgressBar) findViewById(R.id.loading_indicator);
 
+        footView = ((LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.book_list_view_footer, null, false);
+
+        loadMoreButton = (Button) footView.findViewById(R.id.load_more);
         mEmptyTextView = (TextView) findViewById(R.id.empty_view);
-        ListView listView = (ListView) findViewById(R.id.list);
+
+        listView = (ListView) findViewById(R.id.list);
         listView.setEmptyView(mEmptyTextView);
+
+
         mAdapter = new BookAdapter(this, new ArrayList<Book>());
         listView.setAdapter(mAdapter);
 
@@ -56,14 +70,15 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         });
 
 
-        LoaderManager loaderManager = getLoaderManager();
+        loaderManager = getLoaderManager();
 
         loaderManager.initLoader(LOADER_CONSTANT, null, this);
+
 
     }
 
     private void searchBook() {
-        getLoaderManager().restartLoader(LOADER_CONSTANT, null, this);
+        loaderManager.restartLoader(LOADER_CONSTANT, null, this);
     }
 
 
@@ -71,7 +86,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     public Loader<List<Book>> onCreateLoader(int id, Bundle args) {
         progressBar.setVisibility(View.VISIBLE);
         mEmptyTextView.setVisibility(View.GONE);
-        return new BookLoader(this, URL, searchTerm);
+        return new BookLoader(this, URL, searchTerm, 0);
     }
 
     @Override
@@ -82,7 +97,9 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         mAdapter.clear();
 
         if (books != null && !books.isEmpty()) {
+
             mAdapter.addAll(books);
+            listView.addFooterView(footView);
         }
     }
 
@@ -90,6 +107,5 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     public void onLoaderReset(Loader<List<Book>> loader) {
         mAdapter.clear();
     }
-
 
 }
