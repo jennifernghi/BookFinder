@@ -4,7 +4,6 @@ import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Loader;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,25 +36,39 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     private Button nextButton;
     private Button previousButton;
     private ListView listView;
+    private EditText searchEditText;
 
-    private int indexStart=0;
-    private int orientationChanged = -1;
+    private int indexStart = 0;
+    private int booksSize = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.book_list_view);
-        if(savedInstanceState!=null){
-            orientationChanged=1;
+        if (savedInstanceState != null) {
+            //orientationChanged=1;
             int savedCounter = savedInstanceState.getInt("counter");
-            counter=savedCounter;
-            Log.i(LOG_TAG,"counter after orientation changed= " +counter);
+            counter = savedCounter;
+            Log.i(LOG_TAG, "counter after orientation changed= " + counter);
 
             int savedIndexStart = savedInstanceState.getInt("indexStart");
-            indexStart=savedIndexStart;
-            Log.i(LOG_TAG,"indexstart after orientation changed= " +indexStart);
-        }else {
-            Log.i(LOG_TAG,"savedInstanceState =  null");
+            indexStart = savedIndexStart;
+            Log.i(LOG_TAG, "indexstart after orientation changed= " + indexStart);
+
+            int savedBooksSize = savedInstanceState.getInt("booksSize");
+            booksSize = savedBooksSize;
+            Log.i(LOG_TAG, "booksSize after orientation changed= " + booksSize);
+
+            String savedSearchTerm = savedInstanceState.getString("searchTerm");
+            searchTerm = savedSearchTerm;
+            searchEditText = (EditText) findViewById(R.id.search_input);
+            searchEditText.setText(searchTerm);
+            Log.i(LOG_TAG, "searchterms after orientation changed= " + searchTerm);
+
+
+        } else {
+            Log.i(LOG_TAG, "savedInstanceState =  null");
         }
         progressBar = (ProgressBar) findViewById(R.id.loading_indicator);
 
@@ -75,17 +88,18 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
 
 
         Button searchButton = (Button) findViewById(R.id.search_button);
-        final EditText searchEditText = (EditText) findViewById(R.id.search_input);
+        searchEditText = (EditText) findViewById(R.id.search_input);
+        searchEditText.setText(searchTerm);
 
 
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                counter=0;
+                counter = 0;
                 if (searchEditText.getText() != null || searchEditText.getText().toString().equals("")) {
                     mAdapter.clear();
-                    orientationChanged=-1;
-                    indexStart=0;
+                    orientationChanged = -1;
+                    indexStart = 0;
                     searchTerm = searchEditText.getText().toString().trim();
                     searchBook();
                 }
@@ -98,7 +112,26 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                orientationChanged=-1;
+
+                ++counter;
+                indexStart += booksSize;
+                Log.i(LOG_TAG, "next: indexStart =" + indexStart);
+                Log.i(LOG_TAG, "next: counter =" + counter);
+                orientationChanged = -1;
+                loaderManager.restartLoader(LOADER_CONSTANT, null, BookActivity.this);
+            }
+        });
+
+        previousButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                --counter;
+                indexStart -= booksSize;
+                orientationChanged = -1;
+
+                Log.i(LOG_TAG, "previous: indexStart =" + indexStart);
+                Log.i(LOG_TAG, "previous: counter =" + counter);
                 loaderManager.restartLoader(LOADER_CONSTANT, null, BookActivity.this);
             }
         });
@@ -125,21 +158,22 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         mAdapter.clear();
 
         if (books != null && !books.isEmpty()) {
-            if(orientationChanged == -1) {
+            /*if(orientationChanged == -1) {
                 ++counter;
                 indexStart += books.size();
-            }
-            Log.i(LOG_TAG,"indexStart = " + indexStart);
-            Log.i(LOG_TAG,"counter = " + counter);
+            }*/
+            booksSize = books.size();
+            Log.i(LOG_TAG, "onLoadFinished: indexStart = " + indexStart);
+            Log.i(LOG_TAG, "onLoadFinished: counter = " + counter);
             mAdapter.addAll(books);
             mAdapter.notifyDataSetChanged();
             listView.smoothScrollToPosition(0);
             listView.removeFooterView(footView);
             listView.addFooterView(footView);
             nextButton.setVisibility(View.VISIBLE);
-            if(counter>1){
+            if (counter >= 1) {
                 previousButton.setVisibility(View.VISIBLE);
-            }else{
+            } else {
                 previousButton.setVisibility(View.GONE);
             }
 
@@ -155,8 +189,12 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("counter", counter);
-        Log.i(LOG_TAG,"save counter = " +outState.getInt("counter"));
+        Log.i(LOG_TAG, "save counter = " + outState.getInt("counter"));
         outState.putInt("indexStart", indexStart);
-        Log.i(LOG_TAG,"save instart = " +outState.getInt("indexStart"));
+        Log.i(LOG_TAG, "save instart = " + outState.getInt("indexStart"));
+        outState.putInt("booksSize", booksSize);
+        Log.i(LOG_TAG, "save booksSize = " + outState.getInt("booksSize"));
+        outState.putString("searchTerm", searchTerm);
+        Log.i(LOG_TAG, "save searchTerm = " + outState.getString("searchTerm"));
     }
 }
