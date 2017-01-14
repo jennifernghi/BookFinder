@@ -110,6 +110,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             mAdapter.addAll(books);
             mAdapter.notifyDataSetChanged();
             listView.smoothScrollToPosition(0);
+            listView.removeFooterView(footView);
             listView.addFooterView(footView);
         }
     }
