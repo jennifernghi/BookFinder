@@ -8,11 +8,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,18 +30,16 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     private ProgressBar progressBar;
     private LoaderManager loaderManager;
     private View footView;
-    private Button nextButton;
-    private Button previousButton;
+    private Button moreButton;
     private ListView listView;
     private EditText searchEditText;
     private Button searchButton;
 
     //following variables need to be saved
-    private int counter = 0; // +1 when next is clicked and -1 when previous is clicked
     private int indexStart = 0;// parameters indexStart in json response
     private int booksSize = 0;
     private String searchTerm = "love"; //value for searching after q=...
-    private int totalItems = -1;
+
 
 
     @Override
@@ -48,8 +48,6 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         setContentView(R.layout.book_list_view);
         //retrieve saved variables
         if (savedInstanceState != null) {
-
-            counter = savedInstanceState.getInt("counter");
 
             indexStart = savedInstanceState.getInt("indexStart");
 
@@ -81,7 +79,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                counter = 0; //reset counter
+                hideKeyboard();
                 if (searchEditText.getText() != null || searchEditText.getText().toString().equals("")) {
                     mAdapter.clear(); //clear adapter
                     indexStart = 0;//reset indexStart
@@ -95,40 +93,18 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         loaderManager = getLoaderManager();
         loaderManager.initLoader(LOADER_CONSTANT, null, this);
 
-        //event for next button
-        nextButton.setOnClickListener(new View.OnClickListener() {
+        //event for more button
+        moreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (booksSize == 10) {
-                    ++counter; //+1 when clicked
                     indexStart += booksSize; //new indexStart
-                    Log.i(LOG_TAG, "next: booksize = " + booksSize);
-                    Log.i(LOG_TAG, "next: indexstart = " + indexStart);
 
                     //restart loader
                     loaderManager.restartLoader(LOADER_CONSTANT, null, BookActivity.this);
-                }
+
             }
         });
 
-        //event for previous button
-        previousButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                --counter; //-1 when clicked
-                if (booksSize == 10) {
-                    indexStart -= booksSize;//new indexStart
-                } else {
-                    indexStart = 0;
-                }
-                Log.i(LOG_TAG, "previous: indexstart = " + indexStart);
-                Log.i(LOG_TAG, "previous: booksize = " + booksSize);
-
-                //restart loader
-                loaderManager.restartLoader(LOADER_CONSTANT, null, BookActivity.this);
-            }
-        });
     }
 
     /**
@@ -162,16 +138,12 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         //hide progressBar
         progressBar.setVisibility(View.GONE);
         //set text for empty view
+        mEmptyTextView.setVisibility(View.VISIBLE);
         mEmptyTextView.setText("No book found!");
+        Log.i(LOG_TAG,mEmptyTextView.getText().toString());
 
-        mAdapter.clear();
         //if books sucessfully downloaded
         if (books != null && !books.isEmpty()) {
-            //get totalItem from Util
-            totalItems = Utils.getTotalItems();
-
-            Log.i(LOG_TAG, "totalItems = " + totalItems);
-
 
             //add all books to adapter
             mAdapter.addAll(books);
@@ -180,27 +152,20 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             //initialize books size
             booksSize = mAdapter.getCount();
 
-            //automatically scroll to the top of the listview
-            listView.smoothScrollToPosition(0);
 
             //set footview
             listView.removeFooterView(footView);
             listView.addFooterView(footView);
 
-            //show next button
-            if (booksSize == 10) {
-                nextButton.setVisibility(View.VISIBLE);
+            //show more button
+            if (books.size()>=10) {
+                moreButton.setVisibility(View.VISIBLE);
             } else {
-                nextButton.setVisibility(View.GONE);
+               moreButton.setVisibility(View.GONE);
+                Toast.makeText(this, "you've reached the end of the list", Toast.LENGTH_SHORT).show();
             }
 
 
-            //show previous button
-            if (counter >= 1) {
-                previousButton.setVisibility(View.VISIBLE);
-            } else {
-                previousButton.setVisibility(View.GONE);
-            }
 
         }
     }
@@ -212,11 +177,10 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
 
     @Override
     /**
-     * save 4 variables: counter, indexStart, booksSize, searchTerm
+     * save 4 variables:  indexStart, booksSize, searchTerm
      */
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt("counter", counter);
 
         outState.putInt("indexStart", indexStart);
 
@@ -234,13 +198,21 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
 
         footView = ((LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.book_list_view_footer, null, false);
 
-        nextButton = (Button) footView.findViewById(R.id.next);
-        previousButton = (Button) footView.findViewById(R.id.previous);
+        moreButton = (Button) footView.findViewById(R.id.more);
+
 
         mEmptyTextView = (TextView) findViewById(R.id.empty_view);
 
         listView = (ListView) findViewById(R.id.list);
         searchButton = (Button) findViewById(R.id.search_button);
         searchEditText = (EditText) findViewById(R.id.search_input);
+    }
+
+    /**
+     * hide keyboard
+     */
+    private void hideKeyboard(){
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),0);
     }
 }

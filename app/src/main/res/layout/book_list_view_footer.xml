@@ -6,23 +6,13 @@
 
 
     <Button
-        android:id="@+id/next"
+        android:id="@+id/more"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:text="next"
+        android:text="more"
         android:textAllCaps="true"
         android:textAppearance="?android:textAppearanceMedium"
         android:visibility="gone"/>
-    <Button
-        android:id="@+id/previous"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="previous"
-        android:textAllCaps="true"
-        android:textAppearance="?android:textAppearanceMedium"
-        android:layout_toLeftOf="@id/next"
-        android:layout_marginRight="8dp"
-        android:visibility="gone"/>
+
 </RelativeLayout>
