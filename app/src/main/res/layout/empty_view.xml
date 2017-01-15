@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-     android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/lightGray"
     android:gravity="center">
 
     <ImageView
+        android:id="@+id/empty_image"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_centerInParent="true"
-        android:id="@+id/empty_image"
-        android:src="@drawable/book_mark"/>
+        android:layout_centerInParent="true" />
+
     <TextView
-        android:layout_marginTop="8dp"
-        android:layout_below="@id/empty_image"
         android:id="@+id/empty_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/empty_image"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="8dp"
         android:text="empty view info"
         android:textAppearance="?android:textAppearanceMedium"
-        android:textStyle="bold"
         android:textColor="@color/darkGray"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        />
+        android:textStyle="bold" />
+
     <Button
         android:id="@+id/empty_button"
-        android:textColor="@color/darkGray"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:textAppearanceMedium"
-        android:text="Try Again"
         android:layout_below="@id/empty_info"
+        android:layout_centerInParent="true"
         android:layout_marginTop="8dp"
-        android:layout_centerInParent="true"/>
+        android:text="Try Again"
+        android:textAppearance="?android:textAppearanceMedium"
+        android:textColor="@color/darkGray" />
 </RelativeLayout>

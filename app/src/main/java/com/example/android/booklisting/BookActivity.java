@@ -76,9 +76,13 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
 
         //searchEditText shows searchterm
         searchEditText.setText(searchTerm);
+
         //cursor is focused at the end of the word
         searchEditText.setSelection(searchTerm.length());
 
+        // initialize loaderManager
+        loaderManager = getLoaderManager();
+        loaderManager.initLoader(LOADER_CONSTANT, null, this);
         //event for search button
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,9 +97,6 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             }
         });
 
-        // initialize loaderManager
-        loaderManager = getLoaderManager();
-        loaderManager.initLoader(LOADER_CONSTANT, null, this);
 
         //event for more button
         moreButton.setOnClickListener(new View.OnClickListener() {
@@ -146,8 +147,10 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         listView.getEmptyView().setVisibility(View.VISIBLE);
         emptyTextView.setVisibility(View.VISIBLE);
         emptyButton.setVisibility(View.GONE);
-        emptyTextView.setText("No book found! Try different keyword");
+        emptyTextView.setText("Keyword: '"+ searchTerm +"' No book found!");
+        emptyImage.setImageResource(R.drawable.book_mark);
         emptyImage.setVisibility(View.VISIBLE);
+
 
         //if books sucessfully downloaded
         if (books != null && !books.isEmpty()) {
