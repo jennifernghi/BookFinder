@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -26,7 +27,6 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     static final String URL = "https://www.googleapis.com/books/v1/volumes";
 
     private BookAdapter mAdapter = null;
-    private TextView mEmptyTextView;//emptyview
     private ProgressBar progressBar;
     private LoaderManager loaderManager;
     private View footView;
@@ -34,12 +34,15 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     private ListView listView;
     private EditText searchEditText;
     private Button searchButton;
+    private View emptyView;//emptyview
+    private TextView emptyTextView;
+    private Button emptyButton;
+    private ImageView emptyImage;
 
     //following variables need to be saved
     private int indexStart = 0;// parameters indexStart in json response
     private int booksSize = 0;
     private String searchTerm = "love"; //value for searching after q=...
-
 
 
     @Override
@@ -63,8 +66,9 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         }
         //initialize views
         populateViews();
+
         //set empty view for list view
-        listView.setEmptyView(mEmptyTextView);
+        listView.setEmptyView(emptyView);
 
         //initialize adapter with empty ArrayList<Book>
         mAdapter = new BookAdapter(this, new ArrayList<Book>());
@@ -97,10 +101,10 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         moreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    indexStart += booksSize; //new indexStart
+                indexStart += booksSize; //new indexStart
 
-                    //restart loader
-                    loaderManager.restartLoader(LOADER_CONSTANT, null, BookActivity.this);
+                //restart loader
+                loaderManager.restartLoader(LOADER_CONSTANT, null, BookActivity.this);
 
             }
         });
@@ -125,7 +129,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         //show progressBar
         progressBar.setVisibility(View.VISIBLE);
         //hide empty view
-        mEmptyTextView.setVisibility(View.GONE);
+        emptyView.setVisibility(View.GONE);
         return new BookLoader(this, URL, searchTerm, indexStart);
     }
 
@@ -138,9 +142,12 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         //hide progressBar
         progressBar.setVisibility(View.GONE);
         //set text for empty view
-        mEmptyTextView.setVisibility(View.VISIBLE);
-        mEmptyTextView.setText("No book found!");
-        Log.i(LOG_TAG,mEmptyTextView.getText().toString());
+        // emptyView.setVisibility(View.VISIBLE);
+        listView.getEmptyView().setVisibility(View.VISIBLE);
+        emptyTextView.setVisibility(View.VISIBLE);
+        emptyButton.setVisibility(View.GONE);
+        emptyTextView.setText("No book found! Try different keyword");
+        emptyImage.setVisibility(View.VISIBLE);
 
         //if books sucessfully downloaded
         if (books != null && !books.isEmpty()) {
@@ -158,13 +165,12 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             listView.addFooterView(footView);
 
             //show more button
-            if (books.size()>=10) {
+            if (books.size() >= 10) {
                 moreButton.setVisibility(View.VISIBLE);
             } else {
-               moreButton.setVisibility(View.GONE);
+                moreButton.setVisibility(View.GONE);
                 Toast.makeText(this, "you've reached the end of the list", Toast.LENGTH_SHORT).show();
             }
-
 
 
         }
@@ -194,25 +200,28 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
      * initialize all available views
      */
     private void populateViews() {
-        progressBar = (ProgressBar) findViewById(R.id.loading_indicator);
 
+        //foot view
         footView = ((LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.book_list_view_footer, null, false);
+        //empty view
+        emptyView = findViewById(R.id.empty_view);
+        emptyTextView = (TextView) emptyView.findViewById(R.id.empty_info);
+        emptyButton = (Button) emptyView.findViewById(R.id.empty_button);
+        emptyImage = (ImageView) emptyView.findViewById(R.id.empty_image);
 
+        //listview
         moreButton = (Button) footView.findViewById(R.id.more);
-
-
-        mEmptyTextView = (TextView) findViewById(R.id.empty_view);
-
         listView = (ListView) findViewById(R.id.list);
         searchButton = (Button) findViewById(R.id.search_button);
         searchEditText = (EditText) findViewById(R.id.search_input);
+        progressBar = (ProgressBar) findViewById(R.id.loading_indicator);
     }
 
     /**
      * hide keyboard
      */
-    private void hideKeyboard(){
+    private void hideKeyboard() {
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),0);
+        inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
     }
 }

@@ -10,7 +10,8 @@
         android:id="@+id/search_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_alignParentTop="true">
 
         <EditText
             android:id="@+id/search_input"
@@ -46,13 +47,16 @@
         android:dividerHeight="0dp"></ListView>
 
     <!--empty view-->
-    <TextView
-        android:id="@+id/empty_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:textAppearance="?android:textAppearanceMedium" />
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/search_container">
+        <include layout="@layout/empty_view"
+            android:id="@+id/empty_view"
+
+            />
+    </RelativeLayout>
     <!--loading indicator-->
     <ProgressBar
         android:id="@+id/loading_indicator"
