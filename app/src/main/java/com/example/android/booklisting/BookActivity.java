@@ -5,8 +5,6 @@ import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Loader;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -42,14 +40,12 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     private TextView emptyTextView;
     private Button emptyButton;
     private ImageView emptyImage;
-    private  NetworkInfo activeNetwork;
-
 
     //following variables need to be saved
     private int indexStart = 0;// parameters indexStart in json response
     private int booksSize = 0;
     private String searchTerm = ""; //value for searching after q=...
-    private int counter =0;
+    private int counter = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +61,8 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             searchTerm = savedInstanceState.getString("searchTerm");
             searchEditText = (EditText) findViewById(R.id.search_input);
             searchEditText.setText(searchTerm);
+
+            counter = savedInstanceState.getInt("counter");
 
 
         } else {
@@ -94,14 +92,14 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             @Override
             public void onClick(View v) {
                 hideKeyboard();
-                if(checkNetWorkConnection()) {
+                if (checkNetWorkConnection()) {
                     if (searchEditText.getText() != null || searchEditText.getText().toString().equals("")) {
                         mAdapter.clear(); //clear adapter
                         indexStart = 0;//reset indexStart
                         searchTerm = searchEditText.getText().toString().trim();// get new searchTerm
                         searchBook();
                     }
-                }else{
+                } else {
                     disConnectEmptyView();
                 }
             }
@@ -112,40 +110,31 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         moreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                indexStart += booksSize; //new indexStart
 
-                //restart loader
-                loaderManager.restartLoader(LOADER_CONSTANT, null, BookActivity.this);
+                if(checkNetWorkConnection()) {
+                    indexStart += booksSize; //new indexStart
+
+                    //restart loader
+                    loaderManager.restartLoader(LOADER_CONSTANT, null, BookActivity.this);
+                }else {
+                    disConnectEmptyView();
+                }
 
             }
         });
-
+        //hide progress bar
         progressBar.setVisibility(View.GONE);
 
-        if(checkNetWorkConnection()){
-           bookNotFoundEmptyView(searchTerm);
-        }else {
-            disConnectEmptyView();
-            emptyButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(checkNetWorkConnection()) {
-                        if (counter == 0) {
-                            loaderManager.initLoader(LOADER_CONSTANT, null, BookActivity.this);
-                        } else {
-                            String temp = searchEditText.getText().toString().trim();
-                            if(!temp.equals(searchTerm)){
-                                loaderManager.restartLoader(LOADER_CONSTANT, null, BookActivity.this);
-                            }else {
-                                listView.setVisibility(View.VISIBLE);
-                            }
 
-                        }
-                    }else {
-                        disConnectEmptyView();
-                    }
-                }
-            });
+        if (checkNetWorkConnection()) {
+            //if network connection exist, show empty view requires user input a keyword to search
+            startingEmptyView();
+        } else {
+            //if not
+            //sho empty view of disconnected network
+            disConnectEmptyView();
+
+
         }
 
     }
@@ -154,10 +143,11 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
      * call when search button is clicked
      */
     private void searchBook() {
-
-        //restart loader with new search term
-        //loaderManager.restartLoader(LOADER_CONSTANT, null, this);
-        loaderManager.initLoader(LOADER_CONSTANT, null, this);
+        if (counter == 0) { // counter =0 means Loader has never been called
+            loaderManager.initLoader(LOADER_CONSTANT, null, BookActivity.this);
+        } else {
+            loaderManager.restartLoader(LOADER_CONSTANT, null, this);
+        }
     }
 
 
@@ -231,6 +221,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         outState.putInt("booksSize", booksSize);
 
         outState.putString("searchTerm", searchTerm);
+        outState.putInt("counter", counter);
 
     }
 
@@ -266,7 +257,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     /**
      * empty view for disconnect network
      */
-    private void disConnectEmptyView(){
+    private void disConnectEmptyView() {
         listView.getEmptyView().setVisibility(View.VISIBLE);
         emptyTextView.setVisibility(View.VISIBLE);
         emptyImage.setVisibility(View.VISIBLE);
@@ -274,30 +265,83 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         emptyImage.setImageResource(R.drawable.disconnect);
         emptyTextView.setText("Check network connection!");
         emptyButton.setText("Try Again!");
+
+        //try again button
+        emptyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (checkNetWorkConnection()) {
+                    Log.i(LOG_TAG, "got network connection");
+                    //if network now available
+                    emptyView.setVisibility(View.GONE);
+                    Log.i(LOG_TAG, "counter = " + counter);
+                    if (counter == 0) { // counter =0 means Loader has never been called
+                        loaderManager.initLoader(LOADER_CONSTANT, null, BookActivity.this);
+                    } else {
+                        String temp = searchEditText.getText().toString().trim();
+                        if (!temp.equals(searchTerm)) {
+                            //if searchterm in edittext has changed
+                            searchTerm = temp;
+                            loaderManager.restartLoader(LOADER_CONSTANT, null, BookActivity.this);
+                        } else {
+                            //if not just show loaded list view
+                            listView.setVisibility(View.VISIBLE);
+                        }
+
+                    }
+                } else {
+                    Log.i(LOG_TAG, "don't have network connection");
+                    //if network not available
+                    disConnectEmptyView();
+                }
+            }
+        });
     }
 
-    private void bookNotFoundEmptyView(String searchTerm){
+    /**
+     * empty view for book not found situation
+     *
+     * @param searchTerm
+     */
+    private void bookNotFoundEmptyView(String searchTerm) {
         listView.getEmptyView().setVisibility(View.VISIBLE);
         emptyTextView.setVisibility(View.VISIBLE);
         emptyButton.setVisibility(View.GONE);
         emptyImage.setImageResource(R.drawable.book_mark);
         emptyImage.setVisibility(View.VISIBLE);
-        if(searchTerm.equals("")){
+        if (searchTerm.equals("")) {
             emptyTextView.setText("Keyword can't be blank!");
-        }else{
-            emptyTextView.setText("Keyword: '"+ searchTerm +"' No book found!");
+        } else {
+            emptyTextView.setText("Keyword: '" + searchTerm + "' No book found!");
         }
     }
 
+    /**
+     * empty view for beginning situation
+     */
+    private void startingEmptyView() {
+        listView.getEmptyView().setVisibility(View.VISIBLE);
+        emptyTextView.setVisibility(View.VISIBLE);
+        emptyButton.setVisibility(View.GONE);
+        emptyImage.setImageResource(R.drawable.book_mark);
+        emptyImage.setVisibility(View.VISIBLE);
+        emptyTextView.setText("Your book list is empty.\nEnter any keyword to begin.");
+    }
 
-    private boolean checkNetWorkConnection(){
+    /**
+     * check network connection
+     *
+     * @return boolean
+     */
+    private boolean checkNetWorkConnection() {
 
-        ConnectivityManager cm = (ConnectivityManager)getBaseContext().getSystemService(CONNECTIVITY_SERVICE);
+        ConnectivityManager cm = (ConnectivityManager) getBaseContext().getSystemService(CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
 
-        if(activeNetwork!=null && activeNetwork.isConnectedOrConnecting()){
+        if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
             return true;
-        }else {
+        } else {
             return false;
         }
     }
