@@ -45,5 +45,15 @@ public class BookLoader extends AsyncTaskLoader<List<Book>> {
 
     }
 
+    @Override
+    protected void onStopLoading() {
+        cancelLoad();
+    }
 
+    @Override
+    public void onCanceled(List<Book> data) {
+        super.onCanceled(data);
+
+        data.clear();
+    }
 }

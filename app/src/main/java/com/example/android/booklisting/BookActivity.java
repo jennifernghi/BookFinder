@@ -50,6 +50,8 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     private String searchTerm = ""; //value for searching after q=...
     private int counter = 0;
     private int orientationChanged = 0; //0 for original state and 1 indicate that the orientation just changed
+    private boolean lock= false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +71,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             counter = savedInstanceState.getInt("counter");
 
             orientationChanged = savedInstanceState.getInt("orientationChanged");
+
 
 
         } else {
@@ -109,6 +112,9 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             @Override
             public void onClick(View v) {
                 hideKeyboard();
+                if(lock=true){
+                    lock=false;
+                }
                 if (checkNetWorkConnection()) {
                     if (searchEditText.getText() != null || searchEditText.getText().toString().equals("")) {
                         mAdapter.clear(); //clear adapter
@@ -127,7 +133,9 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         moreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if(lock=true){
+                    lock=false;
+                }
                 if (checkNetWorkConnection()) {
                     indexStart += booksSize; //new indexStart
 
@@ -156,6 +164,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
 
         //if orientation just changed, restart loader
         if (orientationChanged == 1) {
+
             loaderManager.restartLoader(LOADER_CONSTANT, null, this);
             orientationChanged = 0;
         }
@@ -179,12 +188,14 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
      * fork off loader background thread
      */
     public Loader<List<Book>> onCreateLoader(int id, Bundle args) {
+
         ++counter;
         //show progressBar
         progressBar.setVisibility(View.VISIBLE);
         //hide empty view
         emptyView.setVisibility(View.GONE);
         return new BookLoader(this, URL, searchTerm, indexStart);
+
     }
 
     @Override
@@ -199,14 +210,13 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         //set text for empty view
         bookNotFoundEmptyView(searchTerm);
 
-
         //if books sucessfully downloaded
         if (books != null && !books.isEmpty()) {
-
-            //add all books to adapter
-            mAdapter.addAll(books);
-            mAdapter.notifyDataSetChanged();
-
+            if(!lock) {
+                //add all books to adapter
+                mAdapter.addAll(books);
+                mAdapter.notifyDataSetChanged();
+            }
             //initialize books size
             booksSize = mAdapter.getCount();
 
@@ -232,6 +242,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         mAdapter.clear();
     }
 
+
     @Override
     /**
      * save 4 variables:  indexStart, booksSize, searchTerm
@@ -244,6 +255,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         outState.putString("searchTerm", searchTerm);
         outState.putInt("counter", counter);
         outState.putInt("orientationChanged", orientationChanged);
+
 
     }
 
@@ -368,6 +380,16 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        lock =true;
+    }
 }
 
 
