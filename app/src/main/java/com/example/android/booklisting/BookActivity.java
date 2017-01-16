@@ -2,15 +2,18 @@ package com.example.android.booklisting;
 
 import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.content.Intent;
 import android.content.Loader;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -81,6 +84,18 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         mAdapter = new BookAdapter(this, new ArrayList<Book>());
         listView.setAdapter(mAdapter);
 
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Book currentBook = mAdapter.getItem(position);
+                if(!currentBook.getInfoLink().equals("")) {
+                    Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(currentBook.getInfoLink()));
+                    startActivity(i);
+                }else {
+                    Toast.makeText(BookActivity.this, "No url available!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
         //searchEditText shows searchterm
         searchEditText.setText(searchTerm);
 
@@ -139,6 +154,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
 
 
         }
+
         //if orientation just changed, restart loader
         if (orientationChanged == 1) {
             loaderManager.restartLoader(LOADER_CONSTANT, null, this);

@@ -15,19 +15,22 @@ public class Book {
     private ArrayList<Author> mAuthors;
     private ArrayList<ISBN> mIsbn;
     private Bitmap mImage;
+    private String mInfoLink;
 
-    public Book(String title, ArrayList<Author> authors, ArrayList<ISBN> isbn, Bitmap image) {
+    public Book(String title, ArrayList<Author> authors, ArrayList<ISBN> isbn, Bitmap image, String mInfoLink) {
         this.mTitle = title;
         this.mAuthors = authors;
         this.mIsbn = isbn;
         this.mImage = image;
+        this.mInfoLink = mInfoLink;
     }
 
-    public Book(String title, ArrayList<Author> authors, ArrayList<ISBN> isbn) {
+    public Book(String title, ArrayList<Author> authors, ArrayList<ISBN> isbn, String mInfoLink) {
         this.mTitle = title;
         this.mAuthors = authors;
         this.mIsbn = isbn;
         this.mImage = null;
+        this.mInfoLink = mInfoLink;
     }
 
     public String getTitle() {
@@ -77,5 +80,9 @@ public class Book {
             }
         }
         return str;
+    }
+
+    public String getInfoLink(){
+        return this.mInfoLink;
     }
 }

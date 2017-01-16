@@ -202,15 +202,27 @@ public final class Utils {
                         Log.e(LOG_TAG, i + " this book has no thumbnail image");
                     }
 
+                    String infoLink = null;
+                    try {
+                        infoLink = volumeInfo.getString("infoLink").trim();
+                    }catch (Exception e){
+                        Log.e(LOG_TAG, "this book has no info link");
+                    }
+
+                    if(infoLink==null){
+                        infoLink = "";
+                    }
+
+
                     if (imageLinks != null) {
                         //convert imageUrl to Bitmap img
                         InputStream in = new URL(imageUrl).openStream();
                         image = BitmapFactory.decodeStream(in);
                         //add book to arrayList
-                        books.add(new Book(title, authors, isbns, image));
+                        books.add(new Book(title, authors, isbns, image, infoLink));
                     } else {
                         //add book to arrayList
-                        books.add(new Book(title, authors, isbns));
+                        books.add(new Book(title, authors, isbns, infoLink));
                     }
 
                 }
