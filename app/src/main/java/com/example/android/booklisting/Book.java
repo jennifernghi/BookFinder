@@ -1,7 +1,6 @@
 package com.example.android.booklisting;
 
 import android.graphics.Bitmap;
-import android.os.Parcelable;
 
 import java.util.ArrayList;
 
@@ -82,7 +81,7 @@ public class Book {
         return str;
     }
 
-    public String getInfoLink(){
+    public String getInfoLink() {
         return this.mInfoLink;
     }
 }

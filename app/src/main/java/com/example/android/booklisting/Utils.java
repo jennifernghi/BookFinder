@@ -205,11 +205,11 @@ public final class Utils {
                     String infoLink = null;
                     try {
                         infoLink = volumeInfo.getString("infoLink").trim();
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         Log.e(LOG_TAG, "this book has no info link");
                     }
 
-                    if(infoLink==null){
+                    if (infoLink == null) {
                         infoLink = "";
                     }
 

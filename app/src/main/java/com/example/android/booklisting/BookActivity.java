@@ -88,10 +88,9 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Book currentBook = mAdapter.getItem(position);
-                if(!currentBook.getInfoLink().equals("")) {
-                    Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(currentBook.getInfoLink()));
-                    startActivity(i);
-                }else {
+                if (!currentBook.getInfoLink().equals("")) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(currentBook.getInfoLink())));
+                } else {
                     Toast.makeText(BookActivity.this, "No url available!", Toast.LENGTH_SHORT).show();
                 }
             }
