@@ -6,34 +6,32 @@
     android:layout_height="match_parent"
     tools:context="com.example.android.booklisting.BookActivity">
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/search_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_alignParentTop="true">
 
         <EditText
             android:id="@+id/search_input"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginRight="8dp"
-            android:layout_weight="1"
             android:hint="Search book title"
             android:inputType="text"
             android:maxHeight="50dp"
-            android:maxLines="1" />
+            android:maxLines="1"
+            />
 
-        <Button
+        <ImageView
             android:id="@+id/search_button"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center_vertical"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
             android:layout_marginRight="8dp"
-            android:layout_weight="0.4"
-            android:text="search"
-            android:textAllCaps="true" />
-    </LinearLayout>
+            android:layout_marginTop="10dp"
+            android:src="@drawable/search"/>
+
+    </RelativeLayout>
 
 
     <!--list view-->
@@ -52,8 +50,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/search_container">
-        <include layout="@layout/empty_view"
+
+        <include
             android:id="@+id/empty_view"
+            layout="@layout/empty_view"
 
             />
     </RelativeLayout>

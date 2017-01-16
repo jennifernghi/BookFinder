@@ -32,10 +32,10 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     private ProgressBar progressBar;
     private LoaderManager loaderManager;
     private View footView;
-    private Button moreButton;
+    private TextView moreButton;
     private ListView listView;
     private EditText searchEditText;
-    private Button searchButton;
+    private ImageView searchButton;
     private View emptyView;//emptyview
     private TextView emptyTextView;
     private Button emptyButton;
@@ -46,6 +46,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     private int booksSize = 0;
     private String searchTerm = ""; //value for searching after q=...
     private int counter = 0;
+    private int orientationChanged = 0; //0 for original state and 1 indicate that the orientation just changed
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +64,8 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             searchEditText.setText(searchTerm);
 
             counter = savedInstanceState.getInt("counter");
+
+            orientationChanged = savedInstanceState.getInt("orientationChanged");
 
 
         } else {
@@ -111,12 +114,12 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             @Override
             public void onClick(View v) {
 
-                if(checkNetWorkConnection()) {
+                if (checkNetWorkConnection()) {
                     indexStart += booksSize; //new indexStart
 
                     //restart loader
                     loaderManager.restartLoader(LOADER_CONSTANT, null, BookActivity.this);
-                }else {
+                } else {
                     disConnectEmptyView();
                 }
 
@@ -135,6 +138,11 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             disConnectEmptyView();
 
 
+        }
+        //if orientation just changed, restart loader
+        if (orientationChanged == 1) {
+            loaderManager.restartLoader(LOADER_CONSTANT, null, this);
+            orientationChanged = 0;
         }
 
     }
@@ -215,13 +223,12 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
      */
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-
+        orientationChanged = 1;
         outState.putInt("indexStart", indexStart);
-
         outState.putInt("booksSize", booksSize);
-
         outState.putString("searchTerm", searchTerm);
         outState.putInt("counter", counter);
+        outState.putInt("orientationChanged", orientationChanged);
 
     }
 
@@ -239,9 +246,9 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         emptyImage = (ImageView) emptyView.findViewById(R.id.empty_image);
 
         //listview
-        moreButton = (Button) footView.findViewById(R.id.more);
+        moreButton = (TextView) footView.findViewById(R.id.more);
         listView = (ListView) findViewById(R.id.list);
-        searchButton = (Button) findViewById(R.id.search_button);
+        searchButton = (ImageView) findViewById(R.id.search_button);
         searchEditText = (EditText) findViewById(R.id.search_input);
         progressBar = (ProgressBar) findViewById(R.id.loading_indicator);
     }
@@ -345,4 +352,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             return false;
         }
     }
+
 }
+
+

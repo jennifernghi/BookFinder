@@ -1,6 +1,7 @@
 package com.example.android.booklisting;
 
 import android.graphics.Bitmap;
+import android.os.Parcelable;
 
 import java.util.ArrayList;
 
