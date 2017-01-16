@@ -3,6 +3,10 @@ package com.example.android.booklisting;
 import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Loader;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -38,12 +42,14 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     private TextView emptyTextView;
     private Button emptyButton;
     private ImageView emptyImage;
+    private  NetworkInfo activeNetwork;
+
 
     //following variables need to be saved
     private int indexStart = 0;// parameters indexStart in json response
     private int booksSize = 0;
-    private String searchTerm = "love"; //value for searching after q=...
-
+    private String searchTerm = ""; //value for searching after q=...
+    private int counter =0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,17 +88,21 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
 
         // initialize loaderManager
         loaderManager = getLoaderManager();
-        loaderManager.initLoader(LOADER_CONSTANT, null, this);
+        //loaderManager.initLoader(LOADER_CONSTANT, null, this);
         //event for search button
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 hideKeyboard();
-                if (searchEditText.getText() != null || searchEditText.getText().toString().equals("")) {
-                    mAdapter.clear(); //clear adapter
-                    indexStart = 0;//reset indexStart
-                    searchTerm = searchEditText.getText().toString().trim();// get new searchTerm
-                    searchBook();
+                if(checkNetWorkConnection()) {
+                    if (searchEditText.getText() != null || searchEditText.getText().toString().equals("")) {
+                        mAdapter.clear(); //clear adapter
+                        indexStart = 0;//reset indexStart
+                        searchTerm = searchEditText.getText().toString().trim();// get new searchTerm
+                        searchBook();
+                    }
+                }else{
+                    disConnectEmptyView();
                 }
             }
         });
@@ -110,6 +120,34 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             }
         });
 
+        progressBar.setVisibility(View.GONE);
+
+        if(checkNetWorkConnection()){
+           bookNotFoundEmptyView(searchTerm);
+        }else {
+            disConnectEmptyView();
+            emptyButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(checkNetWorkConnection()) {
+                        if (counter == 0) {
+                            loaderManager.initLoader(LOADER_CONSTANT, null, BookActivity.this);
+                        } else {
+                            String temp = searchEditText.getText().toString().trim();
+                            if(!temp.equals(searchTerm)){
+                                loaderManager.restartLoader(LOADER_CONSTANT, null, BookActivity.this);
+                            }else {
+                                listView.setVisibility(View.VISIBLE);
+                            }
+
+                        }
+                    }else {
+                        disConnectEmptyView();
+                    }
+                }
+            });
+        }
+
     }
 
     /**
@@ -118,7 +156,8 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     private void searchBook() {
 
         //restart loader with new search term
-        loaderManager.restartLoader(LOADER_CONSTANT, null, this);
+        //loaderManager.restartLoader(LOADER_CONSTANT, null, this);
+        loaderManager.initLoader(LOADER_CONSTANT, null, this);
     }
 
 
@@ -127,6 +166,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
      * fork off loader background thread
      */
     public Loader<List<Book>> onCreateLoader(int id, Bundle args) {
+        ++counter;
         //show progressBar
         progressBar.setVisibility(View.VISIBLE);
         //hide empty view
@@ -142,14 +182,9 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     public void onLoadFinished(Loader<List<Book>> loader, List<Book> books) {
         //hide progressBar
         progressBar.setVisibility(View.GONE);
+
         //set text for empty view
-        // emptyView.setVisibility(View.VISIBLE);
-        listView.getEmptyView().setVisibility(View.VISIBLE);
-        emptyTextView.setVisibility(View.VISIBLE);
-        emptyButton.setVisibility(View.GONE);
-        emptyTextView.setText("Keyword: '"+ searchTerm +"' No book found!");
-        emptyImage.setImageResource(R.drawable.book_mark);
-        emptyImage.setVisibility(View.VISIBLE);
+        bookNotFoundEmptyView(searchTerm);
 
 
         //if books sucessfully downloaded
@@ -226,5 +261,44 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     private void hideKeyboard() {
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+    }
+
+    /**
+     * empty view for disconnect network
+     */
+    private void disConnectEmptyView(){
+        listView.getEmptyView().setVisibility(View.VISIBLE);
+        emptyTextView.setVisibility(View.VISIBLE);
+        emptyImage.setVisibility(View.VISIBLE);
+        emptyButton.setVisibility(View.VISIBLE);
+        emptyImage.setImageResource(R.drawable.disconnect);
+        emptyTextView.setText("Check network connection!");
+        emptyButton.setText("Try Again!");
+    }
+
+    private void bookNotFoundEmptyView(String searchTerm){
+        listView.getEmptyView().setVisibility(View.VISIBLE);
+        emptyTextView.setVisibility(View.VISIBLE);
+        emptyButton.setVisibility(View.GONE);
+        emptyImage.setImageResource(R.drawable.book_mark);
+        emptyImage.setVisibility(View.VISIBLE);
+        if(searchTerm.equals("")){
+            emptyTextView.setText("Keyword can't be blank!");
+        }else{
+            emptyTextView.setText("Keyword: '"+ searchTerm +"' No book found!");
+        }
+    }
+
+
+    private boolean checkNetWorkConnection(){
+
+        ConnectivityManager cm = (ConnectivityManager)getBaseContext().getSystemService(CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+
+        if(activeNetwork!=null && activeNetwork.isConnectedOrConnecting()){
+            return true;
+        }else {
+            return false;
+        }
     }
 }
