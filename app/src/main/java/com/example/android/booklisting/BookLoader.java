@@ -16,9 +16,11 @@ public class BookLoader extends AsyncTaskLoader<List<Book>> {
     private String mUrl;
     private String mSearchTerm;
     private int mStartIndex;
+    private Context context;
 
     public BookLoader(Context context, String url, String searchTerm, int startIndex) {
         super(context);
+        this.context=context;
         this.mUrl = url;
         this.mSearchTerm = searchTerm;
         this.mStartIndex = startIndex;
@@ -36,8 +38,8 @@ public class BookLoader extends AsyncTaskLoader<List<Book>> {
         if (mUrl.length() < 1 || mUrl == null) {
             return null;
         }
-        String url = Utils.buildURL(mUrl, mSearchTerm, mStartIndex);
-        Log.i(LOG_TAG, "url: " + url);
+        String url = Utils.buildURL(context, mUrl, mSearchTerm, mStartIndex);
+        Log.i(LOG_TAG, url);
 
         books = Utils.fetchBookData(url);
 

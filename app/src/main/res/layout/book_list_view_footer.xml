@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:background="@drawable/button"
-        android:text="more"
+        android:text="@string/more"
         android:textAllCaps="true"
         android:textAppearance="?android:textAppearanceMedium"
         android:textColor="@color/colorPrimary"

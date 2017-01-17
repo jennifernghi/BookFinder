@@ -4,6 +4,7 @@ import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -29,7 +30,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     final static String LOG_TAG = BookActivity.class.getSimpleName();
 
     final static int LOADER_CONSTANT = 1;
-    static final String URL = "https://www.googleapis.com/books/v1/volumes";
+    final String URL = "https://www.googleapis.com/books/v1/volumes";
 
     private BookAdapter mAdapter = null;
     private ProgressBar progressBar;
@@ -50,7 +51,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     private String searchTerm = ""; //value for searching after q=...
     private int counter = 0;
     private int orientationChanged = 0; //0 for original state and 1 indicate that the orientation just changed
-    private boolean lock= false;
+    private boolean lock = false;
 
 
     @Override
@@ -60,22 +61,19 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         //retrieve saved variables
         if (savedInstanceState != null) {
 
-            indexStart = savedInstanceState.getInt("indexStart");
+            indexStart = savedInstanceState.getInt(getString(R.string.index_start));
 
-            booksSize = savedInstanceState.getInt("booksSize");
+            booksSize = savedInstanceState.getInt(getString(R.string.book_size));
 
-            searchTerm = savedInstanceState.getString("searchTerm");
+            searchTerm = savedInstanceState.getString(getString(R.string.search_term));
             searchEditText = (EditText) findViewById(R.id.search_input);
             searchEditText.setText(searchTerm);
 
-            counter = savedInstanceState.getInt("counter");
+            counter = savedInstanceState.getInt(getString(R.string.counter));
 
             orientationChanged = savedInstanceState.getInt("orientationChanged");
+            lock = savedInstanceState.getBoolean(getString(R.string.lock));
 
-
-
-        } else {
-            Log.i(LOG_TAG, "savedInstanceState =  null");
         }
         //initialize views
         populateViews();
@@ -91,10 +89,10 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Book currentBook = mAdapter.getItem(position);
-                if (!currentBook.getInfoLink().equals("")) {
+                if (!currentBook.getInfoLink().equals(getString(R.string.empty_string))) {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(currentBook.getInfoLink())));
                 } else {
-                    Toast.makeText(BookActivity.this, "No url available!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(BookActivity.this, getString(R.string.no_url_available), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -112,11 +110,11 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             @Override
             public void onClick(View v) {
                 hideKeyboard();
-                if(lock=true){
-                    lock=false;
+                if (lock = true) {
+                    lock = false;
                 }
                 if (checkNetWorkConnection()) {
-                    if (searchEditText.getText() != null || searchEditText.getText().toString().equals("")) {
+                    if (searchEditText.getText() != null || searchEditText.getText().toString().equals(getString(R.string.empty_string))) {
                         mAdapter.clear(); //clear adapter
                         indexStart = 0;//reset indexStart
                         searchTerm = searchEditText.getText().toString().trim();// get new searchTerm
@@ -133,8 +131,8 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         moreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(lock=true){
-                    lock=false;
+                if (lock = true) {
+                    lock = false;
                 }
                 if (checkNetWorkConnection()) {
                     indexStart += booksSize; //new indexStart
@@ -161,10 +159,11 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
 
 
         }
-
+        Log.i(LOG_TAG,"orientationChanged " + orientationChanged);
+        Log.i(LOG_TAG,"lock " + lock);
         //if orientation just changed, restart loader
         if (orientationChanged == 1) {
-
+            lock = false;
             loaderManager.restartLoader(LOADER_CONSTANT, null, this);
             orientationChanged = 0;
         }
@@ -207,12 +206,15 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         //hide progressBar
         progressBar.setVisibility(View.GONE);
 
-        //set text for empty view
-        bookNotFoundEmptyView(searchTerm);
+        if(books.isEmpty()){
+            //set text for empty view
+            bookNotFoundEmptyView(searchTerm);
+        }
+
 
         //if books sucessfully downloaded
         if (books != null && !books.isEmpty()) {
-            if(!lock) {
+            if (!lock) {
                 //add all books to adapter
                 mAdapter.addAll(books);
                 mAdapter.notifyDataSetChanged();
@@ -230,12 +232,13 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
                 moreButton.setVisibility(View.VISIBLE);
             } else {
                 moreButton.setVisibility(View.GONE);
-                Toast.makeText(this, "you've reached the end of the list", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.end_of_the_list_inform), Toast.LENGTH_SHORT).show();
             }
 
 
         }
     }
+
 
     @Override
     public void onLoaderReset(Loader<List<Book>> loader) {
@@ -250,12 +253,12 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         orientationChanged = 1;
-        outState.putInt("indexStart", indexStart);
-        outState.putInt("booksSize", booksSize);
-        outState.putString("searchTerm", searchTerm);
-        outState.putInt("counter", counter);
+        outState.putInt(getString(R.string.index_start), indexStart);
+        outState.putInt(getString(R.string.book_size), booksSize);
+        outState.putString(getString(R.string.search_term), searchTerm);
+        outState.putInt(getString(R.string.counter), counter);
         outState.putInt("orientationChanged", orientationChanged);
-
+        outState.putBoolean(getString(R.string.lock), lock);
 
     }
 
@@ -297,8 +300,8 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         emptyImage.setVisibility(View.VISIBLE);
         emptyButton.setVisibility(View.VISIBLE);
         emptyImage.setImageResource(R.drawable.disconnect);
-        emptyTextView.setText("Check network connection!");
-        emptyButton.setText("Try Again!");
+        emptyTextView.setText(getString(R.string.check_network_connection));
+        emptyButton.setText(getString(R.string.try_again));
 
         //try again button
         emptyButton.setOnClickListener(new View.OnClickListener() {
@@ -306,10 +309,8 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             public void onClick(View v) {
 
                 if (checkNetWorkConnection()) {
-                    Log.i(LOG_TAG, "got network connection");
                     //if network now available
                     emptyView.setVisibility(View.GONE);
-                    Log.i(LOG_TAG, "counter = " + counter);
                     if (counter == 0) { // counter =0 means Loader has never been called
                         loaderManager.initLoader(LOADER_CONSTANT, null, BookActivity.this);
                     } else {
@@ -325,7 +326,6 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
 
                     }
                 } else {
-                    Log.i(LOG_TAG, "don't have network connection");
                     //if network not available
                     disConnectEmptyView();
                 }
@@ -344,10 +344,10 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         emptyButton.setVisibility(View.GONE);
         emptyImage.setImageResource(R.drawable.book_mark);
         emptyImage.setVisibility(View.VISIBLE);
-        if (searchTerm.equals("")) {
-            emptyTextView.setText("Keyword can't be blank!");
+        if (searchTerm.equals(getString(R.string.empty_string))) {
+            emptyTextView.setText(getString(R.string.keyword_cant_be_blank));
         } else {
-            emptyTextView.setText("Keyword: '" + searchTerm + "' No book found!");
+            emptyTextView.setText(getString(R.string.no_book_found_part_1) + searchTerm + getString(R.string.no_book_found_part_2));
         }
     }
 
@@ -360,7 +360,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         emptyButton.setVisibility(View.GONE);
         emptyImage.setImageResource(R.drawable.book_mark);
         emptyImage.setVisibility(View.VISIBLE);
-        emptyTextView.setText("Your book list is empty.\nEnter any keyword to begin.");
+        emptyTextView.setText(getString(R.string.starting_empty_view_text));
     }
 
     /**
@@ -388,7 +388,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     @Override
     protected void onPause() {
         super.onPause();
-        lock =true;
+        lock = true;
     }
 }
 

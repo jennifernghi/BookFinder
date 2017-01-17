@@ -1,5 +1,7 @@
 package com.example.android.booklisting;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -25,8 +27,7 @@ import java.util.ArrayList;
 
 public final class Utils {
     final static String LOG_TAG = Utils.class.getSimpleName();
-    static int totalItems = -1;
-
+    static Context context;
     private Utils() {
     }
 
@@ -42,7 +43,7 @@ public final class Utils {
             try {
                 url = new URL(urlString);
             } catch (MalformedURLException e) {
-                Log.e(LOG_TAG, "Error create URL");
+                Log.e(LOG_TAG, context.getString(R.string.error_create_url));
             }
         }
 
@@ -73,10 +74,10 @@ public final class Utils {
                 inputStream = connection.getInputStream();
                 reponse = getResponseFromStream(inputStream); //step 3
             } else {
-                Log.e(LOG_TAG, "Error: response code: " + connection.getResponseCode());
+                Log.e(LOG_TAG, context.getString(R.string.error_response_code) + connection.getResponseCode());
             }
         } catch (IOException e) {
-            Log.e(LOG_TAG, "Error: make HTTP URL connection");
+            Log.e(LOG_TAG, context.getString(R.string.error_http_connection));
         } finally {
             if (connection != null) {
                 connection.disconnect();
@@ -123,117 +124,105 @@ public final class Utils {
         ArrayList<Author> authors;
         Bitmap image;
         try {
+
             JSONObject root = new JSONObject(response);
-            //get total items found
-            try {
-                totalItems = Integer.valueOf(root.getString("totalItems").trim());
-                Log.i(LOG_TAG, "totalItems = " + totalItems);
 
-            } catch (Exception e) {
-                Log.e(LOG_TAG, "no books found");
-            }
+            // array "items"
+            JSONArray items = root.getJSONArray(context.getString(R.string.items));
+            for (int i = 0; i < items.length(); i++) {
 
-            if (totalItems > 0) {
-                JSONArray items = root.getJSONArray("items");
-                for (int i = 0; i < items.length(); i++) {
-                    Log.i(LOG_TAG, "book " + i);
-                    JSONObject item = (JSONObject) items.get(i);
-                    JSONObject volumeInfo = item.getJSONObject("volumeInfo");
+                JSONObject item = (JSONObject) items.get(i);
+                JSONObject volumeInfo = item.getJSONObject(context.getString(R.string.volume_info));
 
-                    // get book title
-                    String title = null;
-                    try {
-                        title = volumeInfo.getString("title");
-                    } catch (Exception e) {
-                        Log.e(LOG_TAG, i + " this book has no title");
-                    }
+                // get book title
+                String title = null;
+                try {
+                    title = volumeInfo.getString(context.getString(R.string.title));
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, i + context.getString(R.string.error_no_title));
+                }
 
-                    if (title == null) {
-                        title = "unknown";
+                if (title == null) {
+                    title = context.getString(R.string.unknown);
+                }
+                //get array of authors
+                authors = new ArrayList<>();
+                JSONArray authorArray = null;
+                try {
+                    authorArray = volumeInfo.getJSONArray(context.getString(R.string.authors));
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, i + context.getString(R.string.error_no_authors));
+                }
+                if (authorArray != null) {
+                    for (int k = 0; k < authorArray.length(); k++) {
+                        authors.add(new Author(authorArray.getString(k)));
                     }
-                    //get array of authors
-                    authors = new ArrayList<>();
-                    JSONArray authorArray = null;
-                    try {
-                        authorArray = volumeInfo.getJSONArray("authors");
-                    } catch (Exception e) {
-                        Log.e(LOG_TAG, i + " this book has no info about authors");
-                    }
-                    if (authorArray != null) {
-                        for (int k = 0; k < authorArray.length(); k++) {
-                            authors.add(new Author(authorArray.getString(k)));
-                            // Log.i(LOG_TAG, i + "author: " + k + ": " + authorArray.getString(k));
-                        }
-                    } else {
-                        authors.add(new Author("unknown"));
-                    }
-                    //get array list of isbns: type and code
-                    isbns = new ArrayList<>();
-                    JSONArray industryIdentifiers = null;
-                    try {
-                        industryIdentifiers = volumeInfo.getJSONArray("industryIdentifiers");
-                    } catch (Exception e) {
-                        Log.e(LOG_TAG, i + " this book has no industryIdentifiers");
-                    }
+                } else {
+                    authors.add(new Author(context.getString(R.string.unknown)));
+                }
+                //get array list of isbns: type and code
+                isbns = new ArrayList<>();
+                JSONArray industryIdentifiers = null;
+                try {
+                    industryIdentifiers = volumeInfo.getJSONArray(context.getString(R.string.industryIdentifiers));
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, i + context.getString(R.string.error_no_identifiers));
+                }
 
-                    if (industryIdentifiers != null) {
-                        for (int j = 0; j < industryIdentifiers.length(); j++) {
-                            JSONObject industryIdentifiersObject = (JSONObject) industryIdentifiers.get(j);
-                            String isbnType = industryIdentifiersObject.getString("type");
-                            String isbn = industryIdentifiersObject.getString("identifier");
-                            isbns.add(new ISBN(isbnType, isbn));
-                            //Log.i(LOG_TAG, i + "isbn: " + j + ": " + isbnType + " " + isbn);
-                        }
-                    } else {
-                        String isbnType = "";
-                        String isbn = "";
+                if (industryIdentifiers != null) {
+                    for (int j = 0; j < industryIdentifiers.length(); j++) {
+                        JSONObject industryIdentifiersObject = (JSONObject) industryIdentifiers.get(j);
+                        String isbnType = industryIdentifiersObject.getString( context.getString(R.string.type));
+                        String isbn = industryIdentifiersObject.getString( context.getString(R.string.identifier));
                         isbns.add(new ISBN(isbnType, isbn));
                     }
-
-                    //get book bitmap image from url link
-                    JSONObject imageLinks = null;
-                    String imageUrl = null;
-
-                    try {
-                        imageLinks = volumeInfo.getJSONObject("imageLinks");
-                        imageUrl = imageLinks.getString("thumbnail").trim();
-                        //Log.i(LOG_TAG, i + "imgurl: " + imageUrl);
-                    } catch (Exception e) {
-                        Log.e(LOG_TAG, i + " this book has no thumbnail image");
-                    }
-
-                    String infoLink = null;
-                    try {
-                        infoLink = volumeInfo.getString("infoLink").trim();
-                    } catch (Exception e) {
-                        Log.e(LOG_TAG, "this book has no info link");
-                    }
-
-                    if (infoLink == null) {
-                        infoLink = "";
-                    }
-
-
-                    if (imageLinks != null) {
-                        //convert imageUrl to Bitmap img
-                        InputStream in = new URL(imageUrl).openStream();
-                        image = BitmapFactory.decodeStream(in);
-                        //add book to arrayList
-                        books.add(new Book(title, authors, isbns, image, infoLink));
-                    } else {
-                        //add book to arrayList
-                        books.add(new Book(title, authors, isbns, infoLink));
-                    }
-
+                } else {
+                    String isbnType =  "";
+                    String isbn =  "";
+                    isbns.add(new ISBN(isbnType, isbn));
                 }
-            } else {
-                Log.i(LOG_TAG, "no book found!");
+
+                //get book bitmap image from url link
+                JSONObject imageLinks = null;
+                String imageUrl = null;
+
+                try {
+                    imageLinks = volumeInfo.getJSONObject(context.getString(R.string.imageLinks));
+                    imageUrl = imageLinks.getString(context.getString(R.string.thumbnail)).trim();
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, i + context.getString(R.string.error_no_image));
+                }
+
+                String infoLink = null;
+                try {
+                    infoLink = volumeInfo.getString(context.getString(R.string.infoLink)).trim();
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, i+ context.getString(R.string.error_no_link));
+                }
+
+                if (infoLink == null) {
+                    infoLink = "";
+                }
+
+
+                if (imageLinks != null) {
+                    //convert imageUrl to Bitmap img
+                    InputStream in = new URL(imageUrl).openStream();
+                    image = BitmapFactory.decodeStream(in);
+                    //add book to arrayList
+                    books.add(new Book(context,title, authors, isbns, image, infoLink));
+                } else {
+                    //add book w/o images to arrayList
+                    books.add(new Book(context, title, authors, isbns, infoLink));
+                }
+
             }
+
         } catch (JSONException e) {
-            Log.e(LOG_TAG, "Parsing error");
+            Log.e(LOG_TAG, context.getString(R.string.error_parsing));
 
         } catch (IOException e) {
-            Log.e(LOG_TAG, "Error decoding bitmap");
+            Log.e(LOG_TAG, context.getString(R.string.error_decode_bitmap));
         }
 
 
@@ -250,9 +239,8 @@ public final class Utils {
         try {
             //step 2 and 3
             response = downloadJsonResponse(url);
-            // Log.i(LOG_TAG, response);
         } catch (IOException e) {
-            Log.e(LOG_TAG, "IOEXception: downloadJsonResponse(url) ");
+            Log.e(LOG_TAG, context.getString(R.string.error_io_exception));
         }
 
 
@@ -263,7 +251,16 @@ public final class Utils {
         return books;
     }
 
-    public static String buildURL(String urlString, String searchterms, int startIndex) {
+    /**
+     * build URL string from baseurl, searchtime, startIndex
+     *
+     * @param urlString
+     * @param searchterms
+     * @param startIndex
+     * @return
+     */
+    public static String buildURL(Context ct, String urlString, String searchterms, int startIndex) {
+        context = ct;
         String[] params = searchterms.trim().split(" ");
         String keyword = "";
         for (int i = 0; i < params.length; i++) {
@@ -283,7 +280,4 @@ public final class Utils {
         return url;
     }
 
-    public static int getTotalItems() {
-        return totalItems;
-    }
 }

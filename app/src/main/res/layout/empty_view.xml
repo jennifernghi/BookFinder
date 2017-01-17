@@ -4,12 +4,12 @@
     android:layout_height="match_parent"
     android:background="@color/lightGray"
     android:gravity="center"
-    android:padding="16dp">
+    android:padding="@dimen/big_margin">
 
     <ImageView
         android:id="@+id/empty_image"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="@dimen/empty_view_image"
+        android:layout_height="@dimen/empty_view_image"
         android:layout_centerInParent="true" />
 
     <TextView
@@ -18,8 +18,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/empty_image"
         android:layout_centerInParent="true"
-        android:layout_marginTop="8dp"
-        android:text="empty view info"
+        android:layout_marginTop="@dimen/default_margin"
         android:textAppearance="?android:textAppearanceMedium"
         android:textColor="@color/darkGray"
         android:textStyle="bold" />
@@ -30,8 +29,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/empty_info"
         android:layout_centerInParent="true"
-        android:layout_marginTop="8dp"
-        android:text="Try Again"
+        android:layout_marginTop="@dimen/default_margin"
+        android:text="@string/try_again"
         android:textAppearance="?android:textAppearanceMedium"
         android:textColor="@color/darkGray" />
 </RelativeLayout>
