@@ -4,7 +4,6 @@ import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Intent;
 import android.content.Loader;
-import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -30,7 +29,6 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     final static String LOG_TAG = BookActivity.class.getSimpleName();
 
     final static int LOADER_CONSTANT = 1;
-    final String URL = "https://www.googleapis.com/books/v1/volumes";
 
     private BookAdapter mAdapter = null;
     private ProgressBar progressBar;
@@ -52,12 +50,16 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     private int counter = 0;
     private int orientationChanged = 0; //0 for original state and 1 indicate that the orientation just changed
     private boolean lock = false;
+    private String url = null;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.book_list_view);
+        if (url == null) {
+            url = getString(R.string.url).trim();
+        }
         //retrieve saved variables
         if (savedInstanceState != null) {
 
@@ -71,8 +73,9 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
 
             counter = savedInstanceState.getInt(getString(R.string.counter));
 
-            orientationChanged = savedInstanceState.getInt("orientationChanged");
+            orientationChanged = savedInstanceState.getInt(getString(R.string.orientationChanged));
             lock = savedInstanceState.getBoolean(getString(R.string.lock));
+            url = savedInstanceState.getString(getString(R.string.url));
 
         }
         //initialize views
@@ -159,12 +162,17 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
 
 
         }
-        Log.i(LOG_TAG,"orientationChanged " + orientationChanged);
-        Log.i(LOG_TAG,"lock " + lock);
+        Log.i(LOG_TAG, getString(R.string.orientationChanged) + orientationChanged);
+        Log.i(LOG_TAG, getString(R.string.lock) + lock);
         //if orientation just changed, restart loader
         if (orientationChanged == 1) {
             lock = false;
-            loaderManager.restartLoader(LOADER_CONSTANT, null, this);
+            if (checkNetWorkConnection()) {
+                loaderManager.restartLoader(LOADER_CONSTANT, null, this);
+            } else {
+                disConnectEmptyView();
+            }
+
             orientationChanged = 0;
         }
 
@@ -193,7 +201,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         progressBar.setVisibility(View.VISIBLE);
         //hide empty view
         emptyView.setVisibility(View.GONE);
-        return new BookLoader(this, URL, searchTerm, indexStart);
+        return new BookLoader(this, url, searchTerm, indexStart);
 
     }
 
@@ -206,7 +214,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         //hide progressBar
         progressBar.setVisibility(View.GONE);
 
-        if(books.isEmpty()){
+        if (books.isEmpty()) {
             //set text for empty view
             bookNotFoundEmptyView(searchTerm);
         }
@@ -257,8 +265,9 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         outState.putInt(getString(R.string.book_size), booksSize);
         outState.putString(getString(R.string.search_term), searchTerm);
         outState.putInt(getString(R.string.counter), counter);
-        outState.putInt("orientationChanged", orientationChanged);
+        outState.putInt(getString(R.string.orientationChanged), orientationChanged);
         outState.putBoolean(getString(R.string.lock), lock);
+        outState.putString(getString(R.string.url), url);
 
     }
 
@@ -312,6 +321,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
                     //if network now available
                     emptyView.setVisibility(View.GONE);
                     if (counter == 0) { // counter =0 means Loader has never been called
+                        searchTerm = searchEditText.getText().toString().trim();
                         loaderManager.initLoader(LOADER_CONSTANT, null, BookActivity.this);
                     } else {
                         String temp = searchEditText.getText().toString().trim();

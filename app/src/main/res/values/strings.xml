@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Book Finder</string>
-    <string name="URL">https://www.googleapis.com/books/v1/volumes</string>
+    <string name="url">https://www.googleapis.com/books/v1/volumes</string>
     <string name="empty_string"></string>
     <string name="index_start">indexStart</string>
     <string name="book_size">booksSize</string>
@@ -16,9 +16,9 @@
     <string name="no_book_found_part_1">Keyword: \'</string>
     <string name="no_book_found_part_2">\' No book found!</string>
     <string name="starting_empty_view_text">Your book list is empty.\nEnter any keyword to begin.</string>
-    <string name="comma">, </string>
-    <string name="period">. </string>
-    <string name="colon">: </string>
+    <string name="comma">,&#160; </string>
+    <string name="period">.&#160; </string>
+    <string name="colon">:&#160; </string>
     <string name="error_create_url">Error create URL</string>
     <string name="get">GET</string>
     <string name="error_response_code">Error: response code: </string>
@@ -43,7 +43,12 @@
     <string name="error_io_exception">IOEXception: downloadJsonResponse(url)</string>
     <string name="unknown">unknown</string>
     <string name="edit_text_hint">Book title, ISBN...</string>
-    <string name="author_fixed">Author: </string>
-    <string name="isbn_fixed">ISBN: </string>
+    <string name="author_fixed">Author:&#160; </string>
+    <string name="isbn_fixed">ISBN:&#160; </string>
     <string name="more">more</string>
+    <string name="blank_space">&#160;</string>
+    <string name="param_q">q</string>
+    <string name="param_max_result">maxResults</string>
+    <string name="param_start_index">startIndex</string>
+    <string name="urlString">urlString</string>
 </resources>

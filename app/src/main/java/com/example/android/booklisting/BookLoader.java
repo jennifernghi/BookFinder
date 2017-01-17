@@ -2,7 +2,6 @@ package com.example.android.booklisting;
 
 import android.content.AsyncTaskLoader;
 import android.content.Context;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +19,7 @@ public class BookLoader extends AsyncTaskLoader<List<Book>> {
 
     public BookLoader(Context context, String url, String searchTerm, int startIndex) {
         super(context);
-        this.context=context;
+        this.context = context;
         this.mUrl = url;
         this.mSearchTerm = searchTerm;
         this.mStartIndex = startIndex;
@@ -39,7 +38,6 @@ public class BookLoader extends AsyncTaskLoader<List<Book>> {
             return null;
         }
         String url = Utils.buildURL(context, mUrl, mSearchTerm, mStartIndex);
-        Log.i(LOG_TAG, url);
 
         books = Utils.fetchBookData(url);
 

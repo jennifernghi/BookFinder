@@ -28,6 +28,7 @@ import java.util.ArrayList;
 public final class Utils {
     final static String LOG_TAG = Utils.class.getSimpleName();
     static Context context;
+    static final int DEFAULT_MAX_RESULTS =10;
     private Utils() {
     }
 
@@ -57,7 +58,7 @@ public final class Utils {
      * @return
      */
     public static String downloadJsonResponse(URL url) throws IOException {
-        String reponse = "";
+        String reponse = context.getString(R.string.empty_string);
         if (url == null) {
             return reponse;
         }
@@ -177,8 +178,8 @@ public final class Utils {
                         isbns.add(new ISBN(isbnType, isbn));
                     }
                 } else {
-                    String isbnType =  "";
-                    String isbn =  "";
+                    String isbnType =  context.getString(R.string.empty_string);
+                    String isbn =  context.getString(R.string.empty_string);
                     isbns.add(new ISBN(isbnType, isbn));
                 }
 
@@ -201,7 +202,7 @@ public final class Utils {
                 }
 
                 if (infoLink == null) {
-                    infoLink = "";
+                    infoLink = context.getString(R.string.empty_string);
                 }
 
 
@@ -261,8 +262,8 @@ public final class Utils {
      */
     public static String buildURL(Context ct, String urlString, String searchterms, int startIndex) {
         context = ct;
-        String[] params = searchterms.trim().split(" ");
-        String keyword = "";
+        String[] params = searchterms.trim().split(context.getString(R.string.blank_space));
+        String keyword = context.getString(R.string.empty_string);
         for (int i = 0; i < params.length; i++) {
             if (i != params.length - 1) {
                 keyword += params[i] + "+";
@@ -273,9 +274,9 @@ public final class Utils {
 
         Uri base = Uri.parse(urlString);
         Uri.Builder builder = base.buildUpon();
-        builder.appendQueryParameter("q", keyword);
-        builder.appendQueryParameter("maxResults", "10");
-        builder.appendQueryParameter("startIndex", String.valueOf(startIndex));
+        builder.appendQueryParameter(context.getString(R.string.param_q), keyword);
+        builder.appendQueryParameter(context.getString(R.string.param_max_result), String.valueOf(DEFAULT_MAX_RESULTS));
+        builder.appendQueryParameter(context.getString(R.string.param_start_index), String.valueOf(startIndex));
         String url = builder.toString().replace("%2B", "+");
         return url;
     }

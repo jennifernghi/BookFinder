@@ -28,7 +28,7 @@
             android:layout_alignParentRight="true"
             android:layout_marginRight="@dimen/default_margin"
             android:layout_marginTop="@dimen/magin_top"
-            android:src="@drawable/search"/>
+            android:src="@drawable/search" />
 
     </RelativeLayout>
 
@@ -41,7 +41,7 @@
         android:layout_below="@id/search_container"
         android:layout_marginBottom="@dimen/zero"
         android:divider="@null"
-        android:dividerHeight="@dimen/zero"/>
+        android:dividerHeight="@dimen/zero" />
 
     <!--empty view-->
 
