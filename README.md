@@ -1,5 +1,5 @@
 # BookListing
-android app using Google Book API, Json parsing, listview, viewpager adpater, OOP
+android app using Google Book API, Json parsing, AsyncTaskLoader listview, viewpager adpater, OOP
 
 
 ![gif](https://github.com/jennifernghi/BookReader/blob/master/app/gif/1.gif)
